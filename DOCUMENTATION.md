@@ -1,0 +1,292 @@
+### Table of Contents  
+* [Operation Interface](#interface)  
+* [Writing Operations](#operations)  
+* [Validation](#validators)
+* [Operation Collections](#collections)  
+ 
+<a name="interface"/>
+
+## The interface
+
+An ```Operation``` is an adaptation of the [command pattern](https://en.wikipedia.org/wiki/Command_pattern) that knows how to revert executed commands, so that
+artifacts are not left behind after the test is complete.
+
+The concept is very simple, as you can see from the interface below, but the
+power of the pattern comes from how they can be combined to write highly
+validating, easy to understand, and efficient integration tests.
+
+
+##### Operation.java
+```java
+/**
+ * Operations are an extension of the Command pattern that
+ * can exist in one of two states -- executed or not.
+ *
+ * When created, operations are not executed automatically.  Operations
+ * can be executed by calling execute(), and "un-executed" by calling revert().
+ *
+ * In general, reverted operations can be re-performed by calling execute()
+ * a second time.
+ *
+ * Operations are autocloseable.  On cleanup/close, operations will be reverted, but
+ * errors will be suppressed.
+ */
+public interface Operation extends AutoCloseable {
+
+/**
+ * Perform the command.
+ * Throws an error on failure.
+ * When the execution has completed, isExecuted() will return true.
+ */
+void execute() throws Exception;
+
+/**
+ * "Un-perform" a command.
+ * Throws an IllegalStateException on failure.
+ * When the revert has completed, isExecuted() will return false.
+ */
+void revert() throws Exception;
+
+/**
+ * @return the status of the command.
+ */
+boolean isExecuted();
+
+/**
+ * Gracefully revert the command, and cleanup.
+ * It is assumed that the test is over, so the cleanup can
+ * be destructive and quick.
+ * Commands cannot be re-executed after close().
+ */
+void cleanup();
+}
+```
+<a name="operations"/>
+
+## Writing Operations
+
+Two base classes for Operations are provided, depending on whether the test code
+you are writing is synchronous or asynchronous. Since it is very common for test
+code to be written synchronously (even for asynchronous implementations), this document
+will focus on that.  Asynchronous implementations can refer to the source code.
+
+### OperationSyncBase class
+
+To walk through how to write an operation, we will describe this example from the project:
+
+```java (.line-numbers}
+public class CreateFolderOp extends OperationSyncBase {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    private final CreateFolderOp folderOp;
+    private final String folderName;
+    private Path path;
+
+    /**
+     * Basic constructor.  This will make a folder in an
+     * undetermined place (actually the user's home folder)
+     *
+     * @param folderName
+     */
+    public CreateFolderOp(String folderName) {
+        super(Operations.getExecutorService());
+        this.folderOp = null;
+        this.folderName = folderName;
+    }
+
+    /**
+     * Nested folder constructor.  This will create a
+     * folder with the given name in another folder.
+     * <p>
+     * Rather than taking the path of the folder, we take
+     * the folder operation, so that the created folder
+     * path can be retrieved at execution time.
+     *
+     * @param folderOp
+     * @param folderName
+     */
+    public CreateFolderOp(CreateFolderOp folderOp, String folderName) {
+        super(Operations.getExecutorService());
+        this.folderOp = folderOp;
+        this.folderName = folderName;
+    }
+
+    public CreateFolderOp writeable(boolean writeable) {
+        this.writeable = writeable;
+        return this;
+    }
+    
+    @Override
+    public void executeImpl() throws Exception {
+        Path basePath;
+        if (folderOp != null) {
+            basePath = folderOp.getPath();
+        } else {
+            basePath = Paths.get(System.getProperty("user.home"));
+        }
+
+        path = basePath.resolve(folderName);
+
+        logger.info("Creating folder {}", path.toString());
+        Files.createDirectories(path);
+        
+        path.toFile().setWritable(writeable);
+    }
+
+    @Override
+    public void revertImpl() throws Exception {
+        Files.delete(path);
+        path = null;
+    }
+
+    @Override
+    public boolean isExecuted() {
+        return path != null;
+    }
+
+    /**
+     * Return the path of the created directory.
+     *
+     * @return Path
+     * @throws if the operation is not in the successfully executed state
+     */
+    public Path getPath() {
+        throwIfNotExecuted();
+        return path;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + folderName + ")";
+    }
+}
+```
+
+### Constructor methods
+(lines 12-13)
+Operations will often have multiple constructors available.  One is usually the
+simplest form, where defaults are assumed and properties are loaded from the
+environment where possible. Others will give deeper access to the operation,
+so that specialized tests can be written for non-standard options.
+
+It is also common for constructors to take other operations as parameters,
+instead of the output of those operations.  Besides being a compact way to
+pass results from one operation to another, it allows the second operation to
+be "chained" or composed in a sequence with other operations.
+
+It is also very convenient to add fluent methods to operations for configuration
+and setup of non-default conditions.  Since operations are not executed immediately
+they can be configured until the execute() method is called.
+
+### Execution
+(lines 20-30)
+The main code of the operation is contained in the executeImpl() and revertImpl()
+methods.
+
+These methods should be the inverse of each other.
+
+In between is a method called isExecuted().  This serves as a toggle for the state
+of the operation.  If the operation has not been executed, then it should return false,
+if it has been executed and is ready for reverting, then it should be true.  After
+a successful revert, then it should be false again, signalling that the action can
+be redone.
+
+It is a good idea for executeImpl() and revertImpl() to be be reentrant.  If there
+is a failure during the execution of either, then the cleanup code will call
+revertImpl as long as isExecuted is true.
+
+If more specific error handling is required to clean up half-completed
+executions and reversions, then operations can override cleanup directly.
+
+### Accessor methods
+(lines 31-35)
+It is very common for the result of the operation or clients used by the operation
+to be available through an accessor method.
+
+This makes the operation a convenient holder of all the information regarding
+the created or reserved resource.  The accessor methods should assert that the
+operation has been executed if necessary.
+
+<a name="tests"/>
+
+<a name="validation"/>
+
+## Validation
+Well-written Operations that complete without error should externally verify that
+the operations completed as expected.  In addition, test writers can add validation
+methods to the operation for specific sitations.  These validations are extracted
+into reusable "Validator" classes in order to allow reuse.
+
+By giving full control of the validations to the test writers, they can balance
+validation time and overall speed.
+More elaborate or time-consuming validations can be written, and only added
+in situations where they are appropriate.
+
+### Validator Classes
+Validation instances are called after execute() and revert()
+of the operation has been called successfully.  They are called in parallel
+for optimal runtime speed.
+
+The preferred pattern is that validation objects are attached automatically to
+the operation in the constructor.  This allows test authors to optionally
+remove some validations or add others.
+
+### OperationCollections
+
+Groups of operations can be treated as operations themselves. 
+
+Both serialized collections (OperationSequence) and parallel collections (OperationList) are implemented.
+
+#### OperationSequence
+
+This is the simplest collection of operations, and commonly used to
+excapsulate a test.
+
+Because operations are auto-closeable, a try-with-resources call can
+create a sequence, and then operations can be executed and added to the
+sequence simultaneously.
+
+If there is an error during the execution of the operation, then the test
+will exit, and the sequence auto-close will call cleanup on all the previously
+executed operations.
+
+Because cleanup suppresses throwing more exceptions, the test method will
+pass along the original exception, even if there were problems during cleanup.
+
+##### Typical test pattern
+```java
+@Test
+public void fooTest() throws Exception {
+  try (ops = Operations.sequence()) {
+      Operation firstOp = new SomeOperation();
+      ops.addExecute(firstOp);
+      
+      Operation secondOp = new SomeOperation();
+      ops.addExecute(secondOp);
+  }
+}
+```
+
+Note that revert and cleanup of sequences are done in reverse order.
+
+#### OperationList
+
+This allows for parallel execution of operations.
+
+By default the OperationList is successful if all of the operations in
+the list return successfully.  If any of the operations throws an exception,
+then one of the exceptions will be propagated and the list will not
+advance to the "executed" state.
+
+This behavior can be adjusted by setting the setRequiredForSuccess() value
+to a number less than the number of items in the list.
+
+This can be useful for testing race conditions and first-wins style API calls.
+
+All the elements of a list will be cleaned up when the list is cleaned up,
+but note that only successfully executed elements will call to revertImpl by default.
+ 
+#### Combining collections
+
+Combining parallel lists, and sequential lists, with chained operation calls can
+make a powerful combination for creating test fixtures or scale testing.

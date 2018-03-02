@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT" ignoreExceptions="false">
+            <PatternLayout
+                    pattern="[UTC:%d{DEFAULT}{UTC} Local:%d{DEFAULT}] %-5p [%t] [context=&quot;%X{vcac.contextId}&quot; parent=&quot;%X{vcac.parentId}&quot; token=&quot;%X{vcac.tokenId}&quot;] %c.%M:%L - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Enable the line below to enable detailed logging of Rest client request / response
+        <Logger name="com.vmware.vcac.qe.api.interceptors.LoggingHttpRequestInterceptor" level="trace" />
+        -->
+        <Root level="warn" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>
