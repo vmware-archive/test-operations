@@ -86,7 +86,7 @@ public class OperationTest {
      */
     @Test
     public final void testParallelBasic() throws Exception {
-        final long delayMillis = 100;
+        final long delayMillis = 1000;
         OperationCollection list = Operations.list();
 
         Assert.assertTrue(list.isEmpty());
