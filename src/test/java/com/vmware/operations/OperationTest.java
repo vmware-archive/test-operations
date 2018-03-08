@@ -18,6 +18,7 @@
 
 package com.vmware.operations;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -117,9 +118,9 @@ public class OperationTest {
         executionTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         logger.info("Execution time (parallel): {} ms", executionTime);
 
-        // If we are running in a multi-threaded environment, then the execution
-        // time should be less than the serialized time.
-        Assert.assertTrue(Thread.activeCount() < 2 || executionTime < list.size() * delayMillis);
+        // Operations by default use the ForkJoinPool.  If we are running in a multi-threaded
+        // pool, then the execution time should be less than the serialized time.
+        Assert.assertTrue(ForkJoinPool.getCommonPoolParallelism() <= 1 || executionTime < list.size() * delayMillis);
         Assert.assertEquals(4, value.get());
 
         startTime = System.nanoTime();
