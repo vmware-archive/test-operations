@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 /**
@@ -86,7 +87,7 @@ public class OperationTest {
      */
     @Test
     public final void testParallelBasic() throws Exception {
-        final long delayMillis = 1000;
+        final long delayMillis = 200;
         OperationCollection list = Operations.list();
 
         Assert.assertTrue(list.isEmpty());
@@ -116,7 +117,9 @@ public class OperationTest {
         executionTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         logger.info("Execution time (parallel): {} ms", executionTime);
 
-        Assert.assertTrue(executionTime < list.size() * delayMillis);
+        // If we are running in a multi-threaded environment, then the execution
+        // time should be less than the serialized time.
+        Assert.assertTrue(Thread.activeCount() < 2 || executionTime < list.size() * delayMillis);
         Assert.assertEquals(4, value.get());
 
         startTime = System.nanoTime();
