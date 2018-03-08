@@ -2,7 +2,7 @@
 
 # test-operations
 
-[![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![Build Status](https://travis-ci.org/vmware/test-operations.svg?branch=master)](https://travis-ci.org/vmware/test-operations) [![Coverage Status](https://coveralls.io/repos/github/vmware/test-operations/badge.svg?branch=master)](https://coveralls.io/github/vmware/test-operations?branch=master)
 
 ## Overview
 
@@ -53,10 +53,10 @@ Operations treat this as a special mode, and make the following decisions
 3. errors are suppressed (so as to not interfere with the actual test results)
 
 ### Composable
-Groups of operations can be treated as operations themselves. 
- 
-The simplest composition is just a sequence of operations treated as a single 
-operation.  This is the 
+Groups of operations can be treated as operations themselves.
+
+The simplest composition is just a sequence of operations treated as a single
+operation.  This is the
 mechanism commonly used in every test, so that after its execution, the combined
 sequence of operations is reverted or cleaned up together.
 
@@ -70,13 +70,13 @@ decrease the running times of tricky integration tests.  See
 
 ### Built-in validation
 Operations understand validations as a first-class helper object.
-By default, validations are run after the successful execution or reversion of an 
+By default, validations are run after the successful execution or reversion of an
 operation.
 
 This encourages every operation to be validated in every test, without
 test writers having to remember to include validations and assertions.
 
-For special situations, the validation list is mutable -- default validations can be 
+For special situations, the validation list is mutable -- default validations can be
 removed and additional validations can be added easily.
 
 Validations are also encapsulated in individual classes, so new ones can be written
