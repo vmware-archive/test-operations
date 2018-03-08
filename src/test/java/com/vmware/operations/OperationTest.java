@@ -120,7 +120,8 @@ public class OperationTest {
 
         // Operations by default use the ForkJoinPool.  If we are running in a multi-threaded
         // pool, then the execution time should be less than the serialized time.
-        Assert.assertTrue(ForkJoinPool.getCommonPoolParallelism() <= 1 || executionTime < list.size() * delayMillis);
+        Assert.assertTrue("Execution time was longer than expected: " + executionTime,
+                ForkJoinPool.getCommonPoolParallelism() <= 1 || executionTime < list.size() * delayMillis);
         Assert.assertEquals(4, value.get());
 
         startTime = System.nanoTime();
@@ -129,8 +130,8 @@ public class OperationTest {
         logger.info("Revert time (parallel): {} ms", executionTime);
 
         Assert.assertEquals(0, value.get());
-        Assert.assertTrue("Execution time was longer than expected: " + executionTime,
-                executionTime < list.size() * delayMillis);
+        Assert.assertTrue("Revert time was longer than expected: " + executionTime,
+                ForkJoinPool.getCommonPoolParallelism() <= 1 || executionTime < list.size() * delayMillis);
 
         list.close();
     }
