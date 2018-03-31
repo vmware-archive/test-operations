@@ -18,6 +18,7 @@
 
 package com.vmware.operations;
 
+import java.lang.reflect.Constructor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,11 +31,26 @@ import org.slf4j.LoggerFactory;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 
+import com.vmware.utils.FuzzUtils;
+
 /**
  * Tests the Operations classes, ensuring that they behave correctly.
  */
 public class OperationTest {
     private final static Logger logger = LoggerFactory.getLogger(OperationTest.class);
+
+    @Test
+    public void utilityClassIsWellFormed() throws Exception {
+        Constructor[] ctors = Operations.class.getDeclaredConstructors();
+        Assert.assertEquals("Utility class should only have one constructor",
+                1, ctors.length);
+        Constructor ctor = ctors[0];
+        Assert.assertFalse("Utility class constructor should be inaccessible",
+                ctor.isAccessible());
+        ctor.setAccessible(true); // obviously we'd never do this in production
+        Assert.assertEquals("You'd expect the construct to return the expected type",
+                Operations.class, ctor.newInstance().getClass());
+    }
 
     /**
      * Test method for {@link com.vmware.operations.Operation}.

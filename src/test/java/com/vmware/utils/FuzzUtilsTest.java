@@ -1,9 +1,26 @@
 package com.vmware.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.junit.Assert;
 import org.testng.annotations.Test;
 
 public class FuzzUtilsTest {
+    @Test
+    public void utilityClassIsWellFormed() throws Exception {
+        Constructor[] ctors = FuzzUtils.class.getDeclaredConstructors();
+        Assert.assertEquals("Utility class should only have one constructor",
+                1, ctors.length);
+        Constructor ctor = ctors[0];
+        Assert.assertFalse("Utility class constructor should be inaccessible",
+                ctor.isAccessible());
+        ctor.setAccessible(true); // obviously we'd never do this in production
+        Assert.assertEquals("You'd expect the construct to return the expected type",
+                FuzzUtils.class, ctor.newInstance().getClass());
+
+    }
+
     @Test
     public void adaptEmptyString() {
         String nullString = null;
