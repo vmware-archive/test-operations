@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +37,21 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
 
     private boolean isExecuted = false;
     private ExecutorService executorService;
+
+    /**
+     * The list of operations that should be executed as part of this list.
+     */
     private List<Operation> operations = new ArrayList<>();
+
+    /**
+     * The list of operations successfully executed by this list.
+     */
+    private List<Operation> completed = new ArrayList<>();
+
+    /**
+     * The number of operations that need to successfully complete in
+     * order for this list to execute successfully.
+     */
     protected int required = -1;
 
     /**
@@ -99,66 +114,68 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
         finish();
 
         // Get a future for each operation
-        final CompletableFuture[] completableFutures = operations.stream()
-                .map(Operation::executeAsync)
-                .collect(Collectors.toList())
-                .toArray(new CompletableFuture[operations.size()]);
+        final Map<CompletableFuture, Operation> completableFutures = operations.stream()
+                .collect(Collectors.toMap((op)-> op.executeAsync(), op -> op));
 
-        // Convert to single future
-        return CompletableFuture.runAsync(() -> {
-            try {
-                // Wait for all the futures, regardless of whether they were successful
-                CompletableFuture.allOf(completableFutures).get();
+        // Wait for all the futures, regardless of whether they were successful
+        CompletableFuture[] futuresArray = new CompletableFuture[completableFutures.size()];
+        completableFutures.keySet().toArray(futuresArray);
 
-                // If there were no exceptions, we are executed.
-                isExecuted = true;
-            } catch (ExecutionException | InterruptedException | CompletionException e) {
-                // Always log the errors to debug level
-                Arrays.stream(completableFutures).forEach(f -> {
-                    try {
-                        f.getNow(null);
-                    } catch (Exception ex) {
-                        //logger.debug("Exception detected: ", ex);
-                    }
-                });
-
-                // If there are errors, then we calculate whether to propagate them based on the
-                // value of "requiredForSuccess"
-                if (getRequiredForSuccess() >= 0) {
-                    long succeeded = Arrays.stream(completableFutures)
-                            .filter(f -> !f.isCompletedExceptionally())
-                            .count();
-                    if (succeeded >= getRequiredForSuccess()) {
+        return CompletableFuture.allOf(futuresArray)
+                .handleAsync((unused, throwable) -> {
+                    if (throwable == null) {
+                        // If there were no exceptions, we are executed.
                         isExecuted = true;
-                        return;
+                        completed = operations;
+                        return null;
                     }
-                }
 
-                // Wrap/unwrap the exception if necessary
-                if (e instanceof CompletionException) {
-                    throw (CompletionException) e;
-                } else if (e instanceof ExecutionException) {
-                    throw new CompletionException(e.getCause());
-                } else {
-                    throw new CompletionException(e);
-                }
-            }
-        }, executorService);
+                    // Always log the exceptions to debug level
+                    Arrays.stream(futuresArray).forEach(f -> {
+                        try {
+                            f.getNow(null);
+                            completed.add(completableFutures.get(f));
+                        } catch (Exception ex) {
+                            //logger.debug("Exception detected: ", ex);
+                        }
+                    });
+
+                    // If there are errors, then we calculate whether to propagate them based on the
+                    // value of "requiredForSuccess"
+                    if (getRequiredForSuccess() >= 0) {
+                        if (completed.size() >= getRequiredForSuccess()) {
+                            isExecuted = true;
+                            return null;
+                        }
+                    }
+
+                    // Wrap/unwrap the exception if necessary
+                    if (throwable instanceof CompletionException) {
+                        throw (CompletionException) throwable;
+                    } else if (throwable instanceof ExecutionException) {
+                        throw new CompletionException(throwable.getCause());
+                    } else {
+                        throw new CompletionException(throwable);
+                    }
+                }, executorService);
     }
+
 
     @Override
     public CompletableFuture<Void> revertImpl() {
         finish();
+        throwIfNotExecuted();
 
-        final CompletableFuture[] completableFutures = operations.stream()
+        final CompletableFuture[] completableFutures = completed.stream()
                 .map(Operation::revertAsync)
                 .collect(Collectors.toList())
-                .toArray(new CompletableFuture[operations.size()]);
+                .toArray(new CompletableFuture[completed.size()]);
 
         // Convert to single future
         return CompletableFuture.allOf(completableFutures)
                 .thenRun(() -> {
                     isExecuted = false;
+                    completed = null;
                 });
     }
 

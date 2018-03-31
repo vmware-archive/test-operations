@@ -18,7 +18,9 @@
 
 package com.vmware.operations;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,7 +56,7 @@ public class OperationTest {
         seq.add(new MultiplyOperation(value, 7, delayMillis));   // 1 * 7 = 7
         Assert.assertEquals(2, seq.size());
 
-        seq.add(new IncrementOperation(value, delayMillis));   // 7 + 1 = 8
+        seq.add(new IncrementAsyncOperation(value, delayMillis));   // 7 + 1 = 8
         Assert.assertEquals(3, seq.size());
 
         seq.add(new MultiplyOperation(value, 13, delayMillis)); // 8 * 13 = 104
@@ -134,6 +136,65 @@ public class OperationTest {
                 ForkJoinPool.getCommonPoolParallelism() <= 1 || executionTime < list.size() * delayMillis);
 
         list.close();
+    }
+
+    /**
+     * Test method for {@link com.vmware.operations.OperationList}.  This test
+     * verifies that single-threaded operations work, but are expectedly slow.
+     *
+     * @throws Exception for unexpected exceptions
+     */
+    @Test
+    public final void testSingleThreadedParallel() throws Exception {
+        final long delayMillis = 200;
+        Operations.setExecutorService(Executors.newSingleThreadExecutor());
+        try {
+            OperationCollection list = Operations.list();
+
+            Assert.assertTrue(list.isEmpty());
+            Assert.assertEquals(0, list.size());
+
+            AtomicInteger value = new AtomicInteger(0);
+            list.add(new IncrementOperation(value, delayMillis));
+            Assert.assertEquals(1, list.size());
+            Assert.assertEquals(1, list.getOperations().size());
+
+            list.add(new IncrementOperation(value, delayMillis));
+            Assert.assertEquals(2, list.size());
+            Assert.assertEquals(2, list.getOperations().size());
+
+            list.add(new IncrementOperation(value, delayMillis));
+            Assert.assertEquals(3, list.size());
+            Assert.assertEquals(3, list.getOperations().size());
+
+            list.add(new IncrementOperation(value, delayMillis));
+            Assert.assertEquals(4, list.size());
+            Assert.assertEquals(4, list.getOperations().size());
+
+            long startTime, executionTime;
+
+            startTime = System.nanoTime();
+            list.execute();
+            executionTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+            logger.info("Execution time (parallel): {} ms", executionTime);
+
+            Assert.assertTrue("Execution time was shorter than expected: " + executionTime,
+                    executionTime >= list.size() * delayMillis);
+            Assert.assertEquals(4, value.get());
+
+            startTime = System.nanoTime();
+            list.revert();
+            executionTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+            logger.info("Revert time (parallel): {} ms", executionTime);
+
+            Assert.assertEquals(0, value.get());
+            Assert.assertTrue("Revert time was shorter than expected: " + executionTime,
+                    executionTime >= list.size() * delayMillis);
+
+            list.close();
+        } finally {
+            Operations.setExecutorService(ForkJoinPool.commonPool());
+        }
     }
 
     /**

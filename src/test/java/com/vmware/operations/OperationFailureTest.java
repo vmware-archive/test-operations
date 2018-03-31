@@ -18,6 +18,7 @@
 
 package com.vmware.operations;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -300,15 +301,15 @@ public class OperationFailureTest extends OperationTestBase {
      */
     @Test
     public final void testParallelExecuteFailure() {
-        OperationList seq = Operations.list();
+        OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
-        seq.add(new IncrementOperation(value));
-        seq.add(new ExecuteFailure(value));
-        seq.add(new IncrementOperation(value));
+        list.add(new IncrementOperation(value));
+        list.add(new ExecuteFailure(value));
+        list.add(new IncrementOperation(value));
 
         try {
-            seq.execute();
+            list.execute();
             Assert.fail("Exception was not thrown");
         } catch (ArithmeticException expected) {
             // Expected
@@ -316,10 +317,10 @@ public class OperationFailureTest extends OperationTestBase {
             Assert.fail("Unexpected exception type thrown: " + t);
         }
 
-        Assert.assertFalse(seq.isExecuted());
+        Assert.assertFalse(list.isExecuted());
 
         try {
-            seq.revert();
+            list.revert();
             Assert.fail("Exception was not thrown");
         } catch (IllegalStateException expected) {
             // Expected
@@ -327,7 +328,7 @@ public class OperationFailureTest extends OperationTestBase {
             Assert.fail("Unexpected exception type thrown: " + t);
         }
 
-        seq.close();
+        list.close();
 
         // Original value should be restored
         Assert.assertEquals(0, value.get());
@@ -503,4 +504,86 @@ public class OperationFailureTest extends OperationTestBase {
         // All possible values should be restored
         Assert.assertEquals(1, value.get());
     }
+
+    /**
+     * Test that parallel lists properly handle exceptions in the execution stage
+     * when not all are required for execution success.
+     * This means that they do resolve to isExecuted state, and are
+     * still capable of cleaning up.
+     */
+    @Test
+    public final void testParallelExecutePartialSuccess() throws Exception {
+        OperationList list = Operations.list();
+
+        AtomicInteger value = new AtomicInteger(0);
+        list.add(new IncrementOperation(value));
+        list.add(new ExecuteFailure(value));
+        list.add(new IncrementAsyncOperation(value));
+        list.add(new ExecuteFailure(value));
+        list.setRequiredForSuccess(2);
+
+        list.execute();
+        Assert.assertTrue(list.isExecuted());
+
+        // Both succeeded
+        Assert.assertEquals(2, value.get());
+
+        list.revert();
+        Assert.assertFalse(list.isExecuted());
+
+        list.close();
+
+        // Original value should be restored
+        Assert.assertEquals(0, value.get());
+    }
+
+    /**
+     * Test that parallel lists properly handle exceptions in the execution stage
+     * when not all are required for execution success.
+     * This means that they do not resolve to isExecuted state unless enough
+     * complete, and are still capable of cleaning up.
+     */
+    @Test
+    public final void testParallelExecutePartialFailure() throws Exception {
+        OperationList list = Operations.list();
+
+        AtomicInteger value = new AtomicInteger(0);
+        list.add(new IncrementOperation(value));
+        list.add(new ExecuteFailure(value));
+        list.add(new IncrementAsyncOperation(value));
+        list.add(new ExecuteFailure(value));
+        list.setRequiredForSuccess(3);
+
+        try {
+            list.execute();
+            Assert.fail("Exception was not thrown");
+        } catch (ArithmeticException expected) {
+            // Expected
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        Assert.assertFalse(list.isExecuted());
+
+        // Some succeeded
+        Assert.assertEquals(2, value.get());
+
+        try {
+            list.revert();
+            Assert.fail("Exception was not thrown");
+        } catch (IllegalStateException expected) {
+            // This is the expected case
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        // Revert didn't do anything
+        Assert.assertEquals(2, value.get());
+
+        list.close();
+
+        // Original value should be restored
+        Assert.assertEquals(0, value.get());
+    }
+
 }
