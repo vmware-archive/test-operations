@@ -19,7 +19,7 @@ It's easy to get started adding operations to your Java project.  Just add to yo
 
 ```xml
 <dependency>
-  <groupId>com.vmware</groupId>
+  <groupId>com.vmware.test-operations</groupId>
   <artifactId>test-operations</artifactId>
   <version>1.0</version>
   <scope>test</scope>
