@@ -20,9 +20,5 @@ else
 
 fi
 
-# Import the GPG key files for signing the release jars
-tar -f gpg_files.tar -xO gpg-secret-keys | $GPG_EXECUTABLE --import
-tar -f gpg_files.tar -xO gpg-ownertrust | $GPG_EXECUTABLE --import-ownertrust
-
 # Push to Sonatype/Maven Central
 mvn --settings build-resources/travis-settings.xml -P release deploy
