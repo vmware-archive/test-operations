@@ -23,7 +23,7 @@ else
     # Capture any out-of-date dependencies to the log
     mvn versions:display-dependency-updates
 
-    # Push to Sonatype/Maven Central
-    mvn --settings build-resources/travis-settings.xml -P release deploy
-
 fi
+
+# Push to Sonatype/Maven Central
+mvn --settings build-resources/travis-settings.xml -P release deploy
