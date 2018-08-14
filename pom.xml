@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vmware.test-operations</groupId>
     <artifactId>test-operations</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
 
     <packaging>jar</packaging>
 
@@ -19,7 +18,8 @@
     <scm>
         <connection>scm:git:https://github.com/vmware/test-operations.git</connection>
         <url>https://github.com/vmware/test-operations</url>
-    </scm>
+      <tag>test-operations-0.9</tag>
+  </scm>
 
     <!--
        Maven command to create a test-jar that can be used in other
