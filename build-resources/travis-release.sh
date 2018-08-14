@@ -4,6 +4,9 @@
 #  This script will upload release versions to Maven Central.
 #
 
+# Prerun the script to download all the dependent artifacts
+mvn help:evaluate -Dexpression=project.version
+
 current_pom_version=`mvn help:evaluate -Dexpression=project.version | grep -v '^\['`
 
 if [[ "${current_pom_version}" == *SNAPSHOT ]]
