@@ -1,5 +1,8 @@
 language: java
 
+before_install:
+  - openssl aes-256-cbc -K $encrypted_e586968263a2_key -iv $encrypted_e586968263a2_iv -in build-resources/gpg_files.tar.enc -out gpg_files.tar -d
+
 install:
   - mvn clean test -B -V
 
