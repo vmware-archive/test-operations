@@ -5,8 +5,7 @@ install:
 
 ## import GPG codes
 before_install:
-  - openssl aes-256-cbc -K $encrypted_e586968263a2_key -iv $encrypted_e586968263a2_iv -in build-resources/gpg-secret-keys.enc -out build-resources/gpg-secret-keys -d
-  - cat build-resources/gpg-secret-keys | $GPG_EXECUTABLE --import
+  - openssl aes-256-cbc -K $encrypted_e586968263a2_key -iv $encrypted_e586968263a2_iv -in build-resources/gpg-secret-keys.enc -d | $GPG_EXECUTABLE --import
   - openssl aes-256-cbc -K $encrypted_e586968263a2_key -iv $encrypted_e586968263a2_iv -in build-resources/gpg-ownertrust.enc -d | $GPG_EXECUTABLE --import-ownertrust
 
 after_success:
