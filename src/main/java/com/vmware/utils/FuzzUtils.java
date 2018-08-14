@@ -62,7 +62,7 @@ public class FuzzUtils {
      * Using a prefix, build a random string string with a given length, filled
      * with random chars from the specified charset.  The first few characters will
      * be time based (roughly an hour granularity), and when sorted the newer
-     * strings will be lexicographically less (i.e. they are generated z -> a)
+     * strings will be lexicographically less (i.e. they are sorted z-a)
      *
      * @return unique string that can be used to generate test objects.
      */
