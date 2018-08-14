@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vmware.test-operations</groupId>
     <artifactId>test-operations</artifactId>
-    <version>0.9.2-SNAPSHOT</version>
+    <version>0.9.2</version>
 
     <packaging>jar</packaging>
 
@@ -18,7 +18,7 @@
     <scm>
         <connection>scm:git:https://github.com/vmware/test-operations.git</connection>
         <url>https://github.com/vmware/test-operations</url>
-      <tag>HEAD</tag>
+      <tag>test-operations-0.9.2</tag>
   </scm>
 
     <!--
