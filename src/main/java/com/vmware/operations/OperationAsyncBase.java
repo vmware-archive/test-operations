@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract base class for implementing operations that are naturally asynchronous,
  * based on futures.
- * <p/>
+ *
  * This base class implements the synchronous versions of execute, revert, and cleanup
  * in a standard way.  In particular, it attempts to unwrap any thrown ExecutionExceptions
  * for readability.
@@ -135,11 +135,13 @@ public abstract class OperationAsyncBase extends OperationBase {
 
     /**
      * Asynchronous implementation of the operation.
+     * @return A future that completes when the command is complete
      */
     public abstract CompletableFuture<Void> executeImpl();
 
     /**
      * Asynchronous revert implementation of the operation.
+     * @return A future that completes when the command is reverted
      */
     public abstract CompletableFuture<Void> revertImpl();
 

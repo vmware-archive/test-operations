@@ -32,6 +32,7 @@ public interface Validator {
      * The provisioning operation will wait for the returned operation to complete, or
      * pass along the exception if there was a failure.
      *
+     * @param executorService An executor for running validations on other threads
      * @param initiatingOp The composition service provisioning request
      * @return an operation that will validate an aspect of request or null if this
      * validator is not applicable to the request.  The result of the future should
@@ -46,6 +47,7 @@ public interface Validator {
      * The destroy operation will wait for the returned operation to complete, or
      * pass along the exception if there was a failure.
      *
+     * @param executorService An executor for running validations on other threads
      * @param initiatingOp The composition service provisioning request
      * @return an operation that will validate an aspect of destroy request or null if this
      * validator is not applicable to the request.   The result of the future should

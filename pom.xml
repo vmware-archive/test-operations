@@ -7,6 +7,13 @@
 
     <packaging>jar</packaging>
 
+    <name>test-operations</name>
+    <description>A framework to create test building blocks.
+        An Operation is an adaptation of the command pattern that knows how to revert executed commands,
+        so that artifacts are not left behind after the test is complete.
+    </description>
+    <url>https://github.com/vmware/test-operations</url>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -15,11 +22,25 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>VMware, Inc.</name>
+        <url>http://www.vmware.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>gmcelhoe</id>
+            <name>Glenn McElhoe</name>
+            <organization>VMware, Inc.</organization>
+            <organizationUrl>http://www.vmware.com</organizationUrl>
+        </developer>
+    </developers>
+
     <scm>
         <connection>scm:git:https://github.com/vmware/test-operations.git</connection>
         <url>https://github.com/vmware/test-operations</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <!--
        Maven command to create a test-jar that can be used in other
@@ -244,6 +265,7 @@
 
                     <!--
                       Configure the Javadoc JAR file
+                      -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -257,7 +279,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                     -->
 
                     <!--
                      Sign the components using GPG, so that they can be deployed to Sonatype

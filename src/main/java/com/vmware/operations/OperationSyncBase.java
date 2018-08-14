@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * Abstract base class for implementing operations that are implemented as
  * synchronous functions.
- * <p/>
+ *
  * This base class implements the asynchronous versions of execute, revert, and cleanup
  * in a standard way.
  */
@@ -148,11 +148,13 @@ public abstract class OperationSyncBase extends OperationBase {
 
     /**
      * Synchronous implementation of the operation.
+     * @throws Exception if the operation cannot be completed
      */
     public abstract void executeImpl() throws Exception;
 
     /**
      * Synchronous revert implementation of the operation.
+     * @throws Exception if the operation cannot be reverted
      */
     public abstract void revertImpl() throws Exception;
 

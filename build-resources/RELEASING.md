@@ -17,11 +17,9 @@ Steps
 
    This command will verify that the dependent versions are up to date, and ensures that the project has the latest security fixes.
 
-2. Build and test the project.
-   
-   Make sure everything is ready to go.
+2. `mvn clean verify -P release`
 
-   Fix all javadoc and style issues.
+   Build and test the project to make sure everything is ready to go.
 
 3. `mvn release:prepare -P release`
 

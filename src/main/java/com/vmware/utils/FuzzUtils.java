@@ -64,6 +64,11 @@ public class FuzzUtils {
      * be time based (roughly an hour granularity), and when sorted the newer
      * strings will be lexicographically less (i.e. they are sorted z-a)
      *
+     * @param prefix fixed prefix string that will be at the beginning of the result.
+     * @param charset 78 character string that will be used to generate the random parts of the result.
+     * @param minEntropy The minimum number of random characters that will be added to the prefix
+     * @param minLength The minimum length of the result.  Note that if the prefix length + minEntropy + 3 is
+     *                  greater than minLength, the resulting string will be longer than minLength.
      * @return unique string that can be used to generate test objects.
      */
     public static String getTimeRandomizedString(String prefix, String charset, int minEntropy, int minLength) {
@@ -93,6 +98,11 @@ public class FuzzUtils {
      * Using a prefix, build a random string string with a given length, filled
      * with random chars from the specified charset.
      *
+     * @param prefix fixed prefix string that will be at the beginning of the result.
+     * @param charset 78 character string that will be used to generate the random parts of the result.
+     * @param minEntropy The minimum number of random characters that will be added to the prefix
+     * @param minLength The minimum length of the result.  Note that if the prefix length + minEntropy is
+     *                  greater than minLength, the resulting string will be longer than minLength.
      * @return unique string that can be used to generate test objects.
      */
     public static String getRandomizedString(String prefix, String charset, int minEntropy, int minLength) {
@@ -120,13 +130,13 @@ public class FuzzUtils {
 
     /**
      * Utility to convert strings from one charset (as defined ny this class) to another.
-     * <p>
-     * Not all character sets are fully unique, so when adapting A -> B -> A', A != A' unless
+     *
+     * Not all character sets are fully unique, so when adapting A &rarr; B &rarr; A', A != A' unless
      * the B character set is unique across the domain of the A character set.
-     * <p>
-     * ex.
-     * String s = getRandomizedString("test", UTF16_CHARS, 0, 10) <-- testĴß0⋃⓶∇Ð
-     * String t = adaptString(s, UTF16_CHARS, URL_CHARS)          <-- testJB0U2VB
+     *
+     * Example:
+     * String s = getRandomizedString("test", UTF16_CHARS, 0, 10) = testĴß0⋃⓶∇Ð
+     * String t = adaptString(s, UTF16_CHARS, URL_CHARS)          = testJB0U2VB
      *
      * @param s             the string to adapt
      * @param sourceCharset the original character set

@@ -57,6 +57,7 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
     /**
      * Constructor.
      * Package private to be constructed by factory method only.
+     * @param executorService An executor for running validations on other threads
      */
     OperationList(ExecutorService executorService) {
         super(executorService);
@@ -64,7 +65,7 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
     }
 
     /**
-     * Get the required number of successful child operations in order for this operation
+     * @return the required number of successful child operations in order for this operation
      * to succeed.  If the result is negative, or greater then the length of the list, then
      * any child exception will be propagated to the list operation, causing the list operation to fail.
      */

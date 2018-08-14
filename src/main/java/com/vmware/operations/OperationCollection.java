@@ -52,7 +52,7 @@ public interface OperationCollection extends Operation {
     /**
      * After the list is finished, it cannot be changed.  Calling
      * execute() or cleanup() will automatically finish the list.
-     * <p/>
+     *
      * finish() can be called multiple times.
      */
     void finish();

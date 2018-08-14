@@ -39,6 +39,7 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
 
     /**
      * Constructor.
+     * @param executorService An executor for running validations on other threads
      */
     public OperationSequence(ExecutorService executorService) {
         super(executorService);
@@ -58,8 +59,9 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * This ensures that it will be cleaned up when this list is reverted/cleaned up.
      *
      * @param cmd the command to run
+     * @throws Exception if the execution cannot be completed
      */
-    public void addExecute(Operation cmd) throws Throwable {
+    public void addExecute(Operation cmd) throws Exception {
         data.add(cmd);
         cmd.execute();
     }
@@ -86,10 +88,10 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
     /**
      * After the list is finished, it cannot be changed.  Calling
      * execute() will automatically finish the list.
-     * <p/>
+     *
      * The implementation also creates a reversed copy of the list, since
      * it is guaranteed to be used at least once.
-     * <p/>
+     *
      * finish() is idempotent, and can be called multiple times.
      */
     public void finish() {
@@ -132,7 +134,7 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
     /**
      * Revert the list of commands in reverse order of
      * execution.
-     * <p/>
+     *
      * If any of the commands are marked as not isExecuted(),
      * they will be silently skipped.  This allows for easy
      * reverting of a test, when one or more of the individual
@@ -155,7 +157,7 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
     /**
      * Returns true only if all of the commands in the list
      * have been executed.
-     * <p/>
+     *
      * Note that partially executed lists (which can happen if one of the
      * commands threw an exception) still return false.
      */

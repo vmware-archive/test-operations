@@ -55,6 +55,7 @@ public interface Operation extends AutoCloseable {
      * itself in the constructor, or added later by the caller.
      *
      * @param clazz class type of a validator
+     * @return true if a validator was removed
      */
     boolean removeValidator(Class<?> clazz);
 
@@ -63,6 +64,7 @@ public interface Operation extends AutoCloseable {
      * itself in the constructor, or added later by the caller.
      *
      * @param predicate function called for each validator
+     * @return true if a validator was removed
      */
     boolean removeValidator(Predicate<Validator> predicate);
 
@@ -85,6 +87,7 @@ public interface Operation extends AutoCloseable {
      * Perform the command.
      * Throws an error on failure.
      * When the execution has completed, isExecuted() will return true.
+     * @return A future that completes when the command is complete
      */
     CompletableFuture<Void> executeAsync();
 
@@ -101,6 +104,7 @@ public interface Operation extends AutoCloseable {
      * "Un-perform" a command.
      * Throws an IllegalStateException on failure.
      * When the revert has completed, isExecuted() will return false.
+     * @return A future that completes when the command is reverted
      */
     CompletableFuture<Void> revertAsync();
 
@@ -122,6 +126,7 @@ public interface Operation extends AutoCloseable {
      * It is assumed that the test is over, so the cleanup can
      * be destructive and quick.
      * Commands cannot be re-executed after close().
+     * @return A future that completes when the command is cleaned
      */
     CompletableFuture<Void> cleanupAsync();
 
