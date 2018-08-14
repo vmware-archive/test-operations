@@ -217,12 +217,7 @@
                 <plugins>
                     <!--
                       Maven Release Plugin
-
-                      To release this project, run:
-                        mvn -P release release:prepare
-
-                      And respond to the prompts as they are given.  When Travis-ci detects a release version
-                      in the POM, it will automatically deploy it to Sonatype.
+                      To release this project, follow the isntructions in RELEASING.md
                      -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
