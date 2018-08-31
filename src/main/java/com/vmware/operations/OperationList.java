@@ -29,12 +29,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Perform a collection of commands in parallel, waiting for
  * all of them to complete before moving on.
  */
 public class OperationList extends OperationAsyncBase implements OperationCollection {
-
+    private static final Logger logger = LoggerFactory.getLogger(OperationBase.class.getPackage().getName());
     private boolean isExecuted = false;
     private ExecutorService executorService;
 
@@ -133,13 +136,13 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
                         return null;
                     }
 
-                    // Always log the exceptions to debug level
+                    // Always log exceptions to trace level
                     Arrays.stream(futuresArray).forEach(f -> {
                         try {
                             f.getNow(null);
                             completed.add(completableFutures.get(f));
                         } catch (Exception ex) {
-                            //logger.debug("Exception detected: ", ex);
+                            logger.trace("Exception detected: ", ex);
                         }
                     });
 
