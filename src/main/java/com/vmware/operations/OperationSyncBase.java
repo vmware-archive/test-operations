@@ -45,8 +45,10 @@ public abstract class OperationSyncBase extends OperationBase {
         try {
             validateExecution(executorService).get();
         } catch (ExecutionException ex) {
-            if (ex.getCause() instanceof Exception) {
-                throw (Exception) ex.getCause();
+            // Unwrap the exception if possible
+            Throwable cause = ex.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             } else {
                 throw ex;
             }
@@ -82,8 +84,10 @@ public abstract class OperationSyncBase extends OperationBase {
         try {
             validateRevert(executorService).get();
         } catch (ExecutionException ex) {
-            if (ex.getCause() instanceof Exception) {
-                throw (Exception) ex.getCause();
+            // Unwrap the exception if possible
+            Throwable cause = ex.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             } else {
                 throw ex;
             }

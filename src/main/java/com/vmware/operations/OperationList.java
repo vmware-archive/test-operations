@@ -29,12 +29,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Perform a collection of commands in parallel, waiting for
  * all of them to complete before moving on.
  */
 public class OperationList extends OperationAsyncBase implements OperationCollection {
-
+    private static final Logger logger = LoggerFactory.getLogger(OperationBase.class.getPackage().getName());
     private boolean isExecuted = false;
     private ExecutorService executorService;
 
@@ -115,13 +118,15 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
         finish();
 
         // Get a future for each operation
-        final Map<CompletableFuture, Operation> completableFutures = operations.stream()
-                .collect(Collectors.toMap((op)-> op.executeAsync(), op -> op));
+        final Map<CompletableFuture<Void>, Operation> completableFutures = operations.stream()
+                .collect(Collectors.toMap(Operation::executeAsync, op -> op));
 
-        // Wait for all the futures, regardless of whether they were successful
-        CompletableFuture[] futuresArray = new CompletableFuture[completableFutures.size()];
+        // Suppress warnings around the generic array creation
+        @SuppressWarnings({"unchecked"})
+        CompletableFuture<Void>[] futuresArray = new CompletableFuture[completableFutures.size()];
         completableFutures.keySet().toArray(futuresArray);
 
+        // Wait for all the futures, regardless of whether they were successful
         return CompletableFuture.allOf(futuresArray)
                 .handleAsync((unused, throwable) -> {
                     if (throwable == null) {
@@ -131,13 +136,13 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
                         return null;
                     }
 
-                    // Always log the exceptions to debug level
+                    // Always log exceptions to trace level
                     Arrays.stream(futuresArray).forEach(f -> {
                         try {
                             f.getNow(null);
                             completed.add(completableFutures.get(f));
                         } catch (Exception ex) {
-                            //logger.debug("Exception detected: ", ex);
+                            logger.trace("Exception detected: ", ex);
                         }
                     });
 

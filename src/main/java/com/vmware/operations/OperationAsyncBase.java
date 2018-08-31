@@ -53,8 +53,9 @@ public abstract class OperationAsyncBase extends OperationBase {
             executeImpl().get();
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
-            if (ex.getCause() instanceof Exception) {
-                throw (Exception) ex.getCause();
+            Throwable cause = ex.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             } else {
                 throw ex;
             }
@@ -78,8 +79,9 @@ public abstract class OperationAsyncBase extends OperationBase {
             revertImpl().get();
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
-            if (ex.getCause() instanceof Exception) {
-                throw (Exception) ex.getCause();
+            Throwable cause = ex.getCause();
+            if (cause instanceof Exception) {
+                throw (Exception) cause;
             } else {
                 throw ex;
             }

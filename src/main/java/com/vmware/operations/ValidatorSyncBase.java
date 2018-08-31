@@ -35,7 +35,10 @@ public abstract class ValidatorSyncBase<T> implements Validator {
         try {
             executorService.execute(() -> {
                 try {
-                    validateExecution((T) initiatingOp);
+                    // ClassCastException is expected if the operation cannot be cast to the expected type
+                    @SuppressWarnings({"unchecked"})
+                    T expectedInitiatingOp = (T) initiatingOp;
+                    validateExecution(expectedInitiatingOp);
                     executeResult.complete(null);
                 } catch (Exception ex) {
                     executeResult.completeExceptionally(ex);
@@ -54,7 +57,10 @@ public abstract class ValidatorSyncBase<T> implements Validator {
         try {
             executorService.execute(() -> {
                 try {
-                    validateRevert((T) initiatingOp);
+                    // ClassCastException is expected if the operation cannot be cast to the expected type
+                    @SuppressWarnings({"unchecked"})
+                    T expectedInitiatingOp = (T) initiatingOp;
+                    validateRevert(expectedInitiatingOp);
                     executeResult.complete(null);
                 } catch (Exception ex) {
                     executeResult.completeExceptionally(ex);

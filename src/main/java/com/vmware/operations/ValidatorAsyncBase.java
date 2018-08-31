@@ -32,9 +32,12 @@ public abstract class ValidatorAsyncBase<T extends Operation> implements Validat
     @Override
     public CompletableFuture<Void> validateExecutionAsync(ExecutorService executorService, Operation initiatingOp) {
         try {
-            return validateExecution(executorService, (T) initiatingOp);
+            // ClassCastException is expected if the operation cannot be cast to the expected type
+            @SuppressWarnings({"unchecked"})
+            T expectedInitiatingOp = (T) initiatingOp;
+            return validateExecution(executorService, expectedInitiatingOp);
         } catch (Exception ex) {
-            CompletableFuture result = new CompletableFuture();
+            CompletableFuture<Void> result = new CompletableFuture<>();
             result.completeExceptionally(ex);
             return result;
         }
@@ -44,9 +47,12 @@ public abstract class ValidatorAsyncBase<T extends Operation> implements Validat
     @Override
     public CompletableFuture<Void> validateRevertAsync(ExecutorService executorService, Operation initiatingOp) {
         try {
-            return validateRevert(executorService, (T) initiatingOp);
+            // ClassCastException is expected if the operation cannot be cast to the expected type
+            @SuppressWarnings({"unchecked"})
+            T expectedInitiatingOp = (T) initiatingOp;
+            return validateRevert(executorService, expectedInitiatingOp);
         } catch (Exception ex) {
-            CompletableFuture result = new CompletableFuture();
+            CompletableFuture<Void> result = new CompletableFuture<>();
             result.completeExceptionally(ex);
             return result;
         }
