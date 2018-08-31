@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright (c) 2016 VMware, Inc. All Rights Reserved.
+  ~ Copyright (c) 2016-2018 VMware, Inc. All Rights Reserved.
   ~
   ~ SPDX-License-Identifier: Apache-2.0
   ~
@@ -85,9 +85,6 @@
             <property name="lineWrappingIndentation" value="8"/>
             <property name="arrayInitIndent" value="4"/>
         </module>
-
-        <!-- Additional to xenon. Needed for SuppressionCommentFilter -->
-        <module name="FileContentsHolder"/>
     </module>
 
     <module name="RegexpHeader">
@@ -107,7 +104,4 @@
         <property name="format" value="\s+$"/>
         <property name="message" value="Trailing whitespace"/>
     </module>
-
-    <!-- Additional to xenon -->
-    <module name="SuppressionCommentFilter"/>
 </module>

@@ -115,13 +115,15 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
         finish();
 
         // Get a future for each operation
-        final Map<CompletableFuture, Operation> completableFutures = operations.stream()
-                .collect(Collectors.toMap((op)-> op.executeAsync(), op -> op));
+        final Map<CompletableFuture<Void>, Operation> completableFutures = operations.stream()
+                .collect(Collectors.toMap(Operation::executeAsync, op -> op));
 
-        // Wait for all the futures, regardless of whether they were successful
-        CompletableFuture[] futuresArray = new CompletableFuture[completableFutures.size()];
+        // Suppress warnings around the generic array creation
+        @SuppressWarnings({"unchecked"})
+        CompletableFuture<Void>[] futuresArray = new CompletableFuture[completableFutures.size()];
         completableFutures.keySet().toArray(futuresArray);
 
+        // Wait for all the futures, regardless of whether they were successful
         return CompletableFuture.allOf(futuresArray)
                 .handleAsync((unused, throwable) -> {
                     if (throwable == null) {
