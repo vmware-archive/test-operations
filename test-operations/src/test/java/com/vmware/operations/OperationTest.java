@@ -21,17 +21,13 @@ package com.vmware.operations;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
-
-import com.vmware.utils.FuzzUtils;
 
 /**
  * Tests the Operations classes, ensuring that they behave correctly.
