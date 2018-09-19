@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.vmware.utils;
+package com.vmware.operations.utils;
 
 import java.util.Calendar;
 import java.util.Random;

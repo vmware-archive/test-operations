@@ -24,7 +24,7 @@ import com.vmware.operations.Operation;
 import com.vmware.operations.OperationList;
 import com.vmware.operations.OperationSequence;
 import com.vmware.operations.Operations;
-import com.vmware.utils.FuzzUtils;
+import com.vmware.operations.utils.FuzzUtils;
 
 /**
  * Some example tests to show how to use operations.
