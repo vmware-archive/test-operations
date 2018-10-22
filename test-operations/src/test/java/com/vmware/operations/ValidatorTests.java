@@ -48,6 +48,21 @@ public class ValidatorTests {
         Assert.assertEquals("validation count should match", 0, validationCount.get());
     }
 
+    @Test
+    public final void testOneSyncValidatorWithSequence() throws Exception {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        try (OperationSequence ops = Operations.sequence()) {
+            IncrementOperation op = new IncrementOperation(opCount);
+            op.addValidator(new IncrementSyncValidator(validationCount));
+            ops.addExecute(op);
+        }
+
+        Assert.assertEquals("operation count should match", 0, opCount.get());
+        Assert.assertEquals("validation count should match", 0, validationCount.get());
+    }
+
     /**
      * Validates basic validation
      */

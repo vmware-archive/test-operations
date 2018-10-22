@@ -120,6 +120,19 @@ public abstract class OperationSyncBase extends OperationBase {
         try {
             if (isExecuted()) {
                 revertImpl();
+
+                // Unwrap the async exceptions
+                try {
+                    validateRevert(executorService).get();
+                } catch (ExecutionException ex) {
+                    // Unwrap the exception if possible
+                    Throwable cause = ex.getCause();
+                    if (cause instanceof Exception) {
+                        throw (Exception) cause;
+                    } else {
+                        throw ex;
+                    }
+                }
             }
         } catch (Throwable throwable) {
             // Catch failures, and suppress them during cleanup
