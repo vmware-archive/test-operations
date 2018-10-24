@@ -29,14 +29,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An operation implementation used for testing.  This operation
- * simply increments the value stored in an AtomicInteger object.
+ * increases a value stored in an AtomicInteger array on every call.
+ *
+ * The execute count is kept in lowest three digits, the
+ * revert count is kept in the next three digits, and the cleanup
+ * count is kept in the highest three digits (all base 10).
  */
 public class IncrementAsyncValidator extends ValidatorAsyncBase<Operation> {
     private final static Logger logger = LoggerFactory.getLogger(IncrementAsyncValidator.class);
 
-    AtomicInteger data;
-    AtomicBoolean isExecuted = new AtomicBoolean();
-    long delayMillis;
+    final AtomicInteger data;
+    final long delayMillis;
 
     /**
      * Create an increment operation.  When executed it will increment
@@ -45,8 +48,7 @@ public class IncrementAsyncValidator extends ValidatorAsyncBase<Operation> {
      * @param data AtomicInteger container
      */
     public IncrementAsyncValidator(AtomicInteger data) {
-        Assert.assertNotNull(data);
-        this.data = data;
+        this(data, 0L);
     }
 
     /**
@@ -65,24 +67,20 @@ public class IncrementAsyncValidator extends ValidatorAsyncBase<Operation> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName();
+        String result = getClass().getSimpleName() + "[";
+        if (data == null) {
+            result += "null]";
+        } else {
+            result += data.get() + "]";
+        }
+        return result;
     }
 
     @Override
     public CompletableFuture<Void> validateExecution(ExecutorService executorService, Operation initiatingOp) {
         return CompletableFuture.runAsync(() -> {
             logger.info("Validating execution {}", toString());
-
-            if (delayMillis > 0) {
-                try {
-                    Thread.sleep(delayMillis);
-                } catch (InterruptedException ex) {
-                    // Translate any exceptions
-                    ex.printStackTrace();
-                    throw new RuntimeException(ex);
-                }
-            }
-
+            sleepSafely(delayMillis);
             data.incrementAndGet();
         }, executorService);
     }
@@ -91,18 +89,29 @@ public class IncrementAsyncValidator extends ValidatorAsyncBase<Operation> {
     public CompletableFuture<Void> validateRevert(ExecutorService executorService, Operation initiatingOp) {
         return CompletableFuture.runAsync(() -> {
             logger.info("Validating revert {}", toString());
-
-            if (delayMillis > 0) {
-                try {
-                    Thread.sleep(delayMillis);
-                } catch (InterruptedException ex) {
-                    // Translate any exceptions
-                    ex.printStackTrace();
-                    throw new RuntimeException(ex);
-                }
-            }
-
-            data.decrementAndGet();
+            sleepSafely(delayMillis);
+            data.addAndGet(1000);
         }, executorService);
+    }
+
+    @Override
+    public CompletableFuture<Void> validateCleanupAsync(ExecutorService executorService, Operation initiatingOp) {
+        return CompletableFuture.runAsync(() -> {
+            logger.info("Validating revert {}", toString());
+            sleepSafely(delayMillis);
+            data.addAndGet(1000000);
+        }, executorService);
+    }
+
+    private static void sleepSafely(long delayMillis) {
+        if (delayMillis > 0) {
+            try {
+                Thread.sleep(delayMillis);
+            } catch (InterruptedException ex) {
+                // Translate any exceptions
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
+        }
     }
 }

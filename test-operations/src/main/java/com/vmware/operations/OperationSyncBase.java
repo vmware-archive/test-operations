@@ -119,8 +119,19 @@ public abstract class OperationSyncBase extends OperationBase {
     public void cleanup() {
         try {
             if (isExecuted()) {
-                revertImpl();
+                revert();
             }
+        } catch (Throwable throwable) {
+            // Catch failures, and suppress them during cleanup
+            handleCleanupException(throwable);
+        }
+
+        // If revert failed, then it could have been the operation or the
+        // validators that threw the error.  Ensure the validators
+        // are cleaned up before leaving.
+
+        try {
+            validateCleanup(executorService).get();
         } catch (Throwable throwable) {
             // Catch failures, and suppress them during cleanup
             handleCleanupException(throwable);

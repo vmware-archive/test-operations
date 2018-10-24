@@ -80,7 +80,18 @@ public class IncrementSyncValidator extends ValidatorSyncBase<Operation> {
             Thread.sleep(delayMillis);
         }
 
-        data.decrementAndGet();
+        data.addAndGet(1000);
+    }
+
+    @Override
+    public void validateCleanup(Operation op) throws Exception {
+        logger.info("Validating cleanup {}", toString());
+
+        if (delayMillis > 0) {
+            Thread.sleep(delayMillis);
+        }
+
+        data.addAndGet(1000000);
     }
 
     @Override

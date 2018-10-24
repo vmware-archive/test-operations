@@ -26,32 +26,47 @@ import java.util.concurrent.ExecutorService;
  */
 public interface Validator {
     /**
-     * Return an operation which will validate an aspect of the request, or null if
-     * this validator is not applicable.
-     * <p>
-     * The provisioning operation will wait for the returned operation to complete, or
-     * pass along the exception if there was a failure.
+     * Perform an action to validate the execution of an operation.
+     *
+     * This is called after the execute operation has been completed.  The initiating
+     * operation will wait for the validator to complete, passing along the exception
+     * if there was a failure.
      *
      * @param executorService An executor for running validations on other threads
-     * @param initiatingOp The composition service provisioning request
-     * @return an operation that will validate an aspect of request or null if this
-     * validator is not applicable to the request.  The result of the future should
-     * be the number of components in the request which were validated.
+     * @param initiatingOp The operation that is being validated
+     * @return a future that completes when the validation is done or has an error.
      */
-    CompletableFuture<Void> validateExecutionAsync(ExecutorService executorService, Operation initiatingOp);
+    CompletableFuture<?> validateExecutionAsync(ExecutorService executorService, Operation initiatingOp);
 
     /**
-     * Return an operation which will validate an aspect of the destroy request, or null if
-     * this validator is not applicable.
-     * <p>
-     * The destroy operation will wait for the returned operation to complete, or
-     * pass along the exception if there was a failure.
+     * Perform an action to validate the revert of an operation.
+     *
+     * This is called after the revert operation has been completed.  The initiating
+     * operation will wait for the validator to complete, passing along the exception
+     * if there was a failure.
      *
      * @param executorService An executor for running validations on other threads
-     * @param initiatingOp The composition service provisioning request
-     * @return an operation that will validate an aspect of destroy request or null if this
-     * validator is not applicable to the request.   The result of the future should
-     * be the number of components in the request which were validated.
+     * @param initiatingOp The operation that is being validated
+     * @return a future that completes when the validation is done or has an error.
      */
-    CompletableFuture<Void> validateRevertAsync(ExecutorService executorService, Operation initiatingOp);
+    CompletableFuture<?> validateRevertAsync(ExecutorService executorService, Operation initiatingOp);
+
+    /**
+     * Perform an action to cleanup the validator in case the execution of
+     * an operation succeeded, but revert of the operation failed (in that case validateRevert()
+     * will not normally be called).
+     *
+     * Generally, nothing needs to be done, but for validators that keep state, they
+     * can use this method to clean up.
+     *
+     * Note that if the *validator* fails during revert, validateCleanupAsync will not be called.
+     *
+     * The initiating operation will wait for the validator to complete.  Exceptions
+     * during cleanup will be ignored.
+     *
+     * @param executorService An executor for running validations on other threads
+     * @param initiatingOp The operation that is being validated
+     * @return a future that completes when the cleanup is done or has an error.
+     */
+    CompletableFuture<?> validateCleanupAsync(ExecutorService executorService, Operation initiatingOp);
 }

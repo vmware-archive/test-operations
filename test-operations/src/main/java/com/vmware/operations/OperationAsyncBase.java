@@ -102,9 +102,8 @@ public abstract class OperationAsyncBase extends OperationBase {
     public final void cleanup() {
         try {
             cleanupAsync().get();
-        } catch (Throwable throwable) {
+        } catch (Exception ex) {
             // Swallow the error
-            logger.info("Cleanup error {}", throwable.getMessage());
         }
     }
 
@@ -117,9 +116,19 @@ public abstract class OperationAsyncBase extends OperationBase {
             if (isExecuted()) {
                 return revertAsync();
             }
-        } catch (Exception ex) {
+        } catch (Throwable throwable) {
             // Catch all failures, and suppress them during cleanup
+            logger.info("Cleanup error {}", throwable.getMessage());
         }
+
+        // Tell the validators goodbye, in case revert failed.
+        try {
+            validateCleanup(executorService);
+        } catch (Throwable throwable) {
+            // Catch all failures, and suppress them during cleanup
+            logger.info("Cleanup validators error {}", throwable.getMessage());
+        }
+
         return CompletableFuture.completedFuture(null);
     }
 

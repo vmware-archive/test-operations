@@ -73,7 +73,31 @@ public abstract class ValidatorSyncBase<T> implements Validator {
         return executeResult;
     }
 
+    @Override
+    public CompletableFuture<Void> validateCleanupAsync(ExecutorService executorService, Operation initiatingOp) {
+        CompletableFuture<Void> executeResult = new CompletableFuture<>();
+        try {
+            executorService.execute(() -> {
+                try {
+                    // ClassCastException is expected if the operation cannot be cast to the expected type
+                    @SuppressWarnings({"unchecked"})
+                    T expectedInitiatingOp = (T) initiatingOp;
+                    validateCleanup(expectedInitiatingOp);
+                    executeResult.complete(null);
+                } catch (Exception ex) {
+                    executeResult.completeExceptionally(ex);
+                }
+            });
+        } catch (Exception ex) {
+            executeResult.completeExceptionally(ex);
+        }
+
+        return executeResult;
+    }
+
     public abstract void validateExecution(T initiatingOp) throws Exception;
 
     public abstract void validateRevert(T initiatingOp) throws Exception;
+
+    public void validateCleanup(T initiatingOp) throws Exception {}
 }

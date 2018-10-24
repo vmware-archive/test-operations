@@ -102,16 +102,17 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         // The revert command should execute without error.
         // The validator will also run, so we see the side-effect
-        // value getting decremented.
+        // value getting incremented.
         cmd.revert();
 
         Assert.assertFalse(cmd.isExecuted());
         Assert.assertEquals(0, opValue.get());
-        Assert.assertEquals(-1, validValue.get());
+        Assert.assertEquals(1000, validValue.get());
 
         cmd.close();
 
         Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
     }
 
     /**
@@ -182,11 +183,12 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         Assert.assertFalse(cmd.isExecuted());
         Assert.assertEquals(0, opValue.get());
-        Assert.assertEquals(-1, validValue.get());
+        Assert.assertEquals(1000, validValue.get());
 
         cmd.close();
 
         Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
     }
 
     /**

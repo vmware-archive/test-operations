@@ -45,7 +45,7 @@ public class ValidatorTests {
 
         op.revert();
         Assert.assertEquals("operation count should match", 0, opCount.get());
-        Assert.assertEquals("validation count should match", 0, validationCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
     }
 
     /**
@@ -65,7 +65,47 @@ public class ValidatorTests {
 
         op.revert();
         Assert.assertEquals("operation count should match", 0, opCount.get());
-        Assert.assertEquals("validation count should match", 0, validationCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneSyncValidatorCleanup() throws Exception {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementOperation op = new IncrementOperation(opCount);
+        op.addValidator(new IncrementSyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 0, opCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneAsyncValidatorCleanup() throws Exception {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementOperation op = new IncrementOperation(opCount);
+        op.addValidator(new IncrementAsyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 0, opCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
     }
 
     /**
