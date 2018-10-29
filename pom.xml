@@ -60,6 +60,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.11</version>
+        </dependency>
 
         <!-- Test only JARs -->
         <dependency>
@@ -120,7 +125,7 @@
                             <dependency>
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
-                                <version>8.12</version>
+                                <version>8.14</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -162,7 +167,7 @@
                             <dependency>
                                 <groupId>com.github.spotbugs</groupId>
                                 <artifactId>spotbugs</artifactId>
-                                <version>3.1.6</version>
+                                <version>3.1.8</version>
                             </dependency>
                         </dependencies>
                     </plugin>
