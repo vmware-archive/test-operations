@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 public abstract class OperationBase implements Operation {
     private static final Logger logger = LoggerFactory.getLogger(OperationBase.class.getPackage().getName());
     private List<Validator> validatorList;
+    private boolean validationsExecuted;
+    private boolean validationsReverted;
 
     protected OperationBase() {
         this.validatorList = new ArrayList<>();
@@ -96,11 +98,16 @@ public abstract class OperationBase implements Operation {
         for (int i = 0; i < validatorList.size(); ++i) {
             validations[i] = validatorList.get(i).validateExecutionAsync(executorService, this);
         }
+        validationsExecuted = true;
+        validationsReverted = false;
         return CompletableFuture.allOf(validations);
     }
 
     /**
      * Wait for the futures of all the validators to complete (or return exceptionally).
+     *
+     * This method tracks whether revert has been called, but it is the caller's
+     * responsibility to ensure that it is only called once.
      *
      * @param executorService execution context for the internal async calls
      * @return CompletableFuture of the results.  If any of the validations failed, then
@@ -111,6 +118,27 @@ public abstract class OperationBase implements Operation {
         for (int i = 0; i < validatorList.size(); ++i) {
             validations[i] = validatorList.get(i).validateRevertAsync(executorService, this);
         }
+        validationsReverted = true;
         return CompletableFuture.allOf(validations);
+    }
+
+    /**
+     * Wait for the futures of all the validators to complete (or return exceptionally).
+     *
+     * @param executorService execution context for the internal async calls
+     * @return CompletableFuture of the results.  If any of the validations failed, then
+     * the result future will hold an exception of one of the failures.
+     */
+    protected CompletableFuture<Void> validateCleanup(ExecutorService executorService) {
+        if (validationsExecuted && !validationsReverted) {
+            CompletableFuture[] validations = new CompletableFuture[validatorList.size()];
+            for (int i = 0; i < validatorList.size(); ++i) {
+                validations[i] = validatorList.get(i).validateCleanupAsync(executorService, this);
+            }
+            validationsReverted = true;
+            return CompletableFuture.allOf(validations);
+        } else {
+            return CompletableFuture.completedFuture(null);
+        }
     }
 }
