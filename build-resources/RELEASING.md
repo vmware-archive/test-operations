@@ -21,7 +21,7 @@ Steps
 
    Build and test the project to make sure everything is ready to go.
 
-3. `mvn release:prepare -P release`
+3. `mvn release:clean release:prepare -P release`
 
    Respond to the prompts about release version numbers based on semantic version (below)
 
