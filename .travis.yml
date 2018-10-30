@@ -8,8 +8,11 @@ before_install:
 install:
   - mvn clean verify -B -V -P release
 
+script:
+  - cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release test jacoco:report
+
 after_success:
-  - cd $TRAVIS_BUILD_DIR/test-operations && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report -P release
+  - cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release -DrepoToken=$COVERALLS_TOKEN coveralls:report
 
 deploy:
   provider: script
