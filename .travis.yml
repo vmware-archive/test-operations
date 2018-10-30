@@ -9,7 +9,7 @@ install:
   - mvn clean verify -B -V
 
 after_success:
-  - mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report
+  - cd test-operation && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report
 
 deploy:
   provider: script
