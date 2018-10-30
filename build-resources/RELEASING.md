@@ -31,6 +31,12 @@ Steps
 
     To clean up the files created during the release process
 
+5. Release the binary in nexus
+
+    Log into http://oss.sonatype.org and find the artifacts in the staging repository.  Close and promote the repository to make them available publicly.
+    Note that due to the issue described in https://issues.sonatype.org/browse/OSSRH-5454, releasing from a corporate network can fail.
+
+
 Versioning
 -----
 Test-operations uses semantic versioning, in the form of `MAJOR`.`MINOR`.`PATCH` .  In a nutshell that means that revisions that require substantial changes affect the major version, changes that require recompiling affect the minor version, and changes that require just new library deployment affect the patch version.
