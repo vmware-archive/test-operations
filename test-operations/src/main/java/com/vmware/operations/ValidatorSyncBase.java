@@ -40,12 +40,12 @@ public abstract class ValidatorSyncBase<T> implements Validator {
                     T expectedInitiatingOp = (T) initiatingOp;
                     validateExecution(expectedInitiatingOp);
                     executeResult.complete(null);
-                } catch (Exception ex) {
-                    executeResult.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    executeResult.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            executeResult.completeExceptionally(ex);
+        } catch (Throwable th) {
+            executeResult.completeExceptionally(th);
         }
 
         return executeResult;
@@ -62,12 +62,12 @@ public abstract class ValidatorSyncBase<T> implements Validator {
                     T expectedInitiatingOp = (T) initiatingOp;
                     validateRevert(expectedInitiatingOp);
                     executeResult.complete(null);
-                } catch (Exception ex) {
-                    executeResult.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    executeResult.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            executeResult.completeExceptionally(ex);
+        } catch (Throwable th) {
+            executeResult.completeExceptionally(th);
         }
 
         return executeResult;
@@ -84,12 +84,12 @@ public abstract class ValidatorSyncBase<T> implements Validator {
                     T expectedInitiatingOp = (T) initiatingOp;
                     validateCleanup(expectedInitiatingOp);
                     executeResult.complete(null);
-                } catch (Exception ex) {
-                    executeResult.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    executeResult.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            executeResult.completeExceptionally(ex);
+        } catch (Throwable th) {
+            executeResult.completeExceptionally(th);
         }
 
         return executeResult;

@@ -51,7 +51,7 @@ public class ExampleTest {
      * @throws Exception
      */
     @Test
-    public void closeableOperationTest() throws Exception {
+    public void closeableOperationTest() throws Throwable {
         try (CreateFileOp local = new CreateFileOp("foo.txt")) {
             local.execute();
             local.revert();
@@ -128,7 +128,7 @@ public class ExampleTest {
      */
 
     @Test
-    public void scriptedTest() throws Exception {
+    public void scriptedTest() throws Throwable {
         try (Operation ops = Operations.list()) {
             for (int i = 0; i < 10; ++i) {
                 OperationSequence seq = Operations.sequence();

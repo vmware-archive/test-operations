@@ -38,7 +38,7 @@ public class OperationFailureTest extends OperationTestBase {
 
         @Override
         public void executeImpl() {
-            throw new ArithmeticException("execute");
+            throw new AssertionError("execute");
         }
     }
 
@@ -49,7 +49,7 @@ public class OperationFailureTest extends OperationTestBase {
 
         @Override
         public void revertImpl() {
-            throw new ArithmeticException("revert");
+            throw new AssertionError("revert");
         }
     }
 
@@ -60,7 +60,7 @@ public class OperationFailureTest extends OperationTestBase {
 
         @Override
         public void cleanup() {
-            throw new ArithmeticException("cleanup");
+            throw new AssertionError("cleanup");
         }
     }
 
@@ -75,7 +75,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             cmd.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -107,7 +107,7 @@ public class OperationFailureTest extends OperationTestBase {
      * @throws Exception if an operation throws during execution
      */
     @Test
-    public final void testBasicRevertFailure() throws Exception {
+    public final void testBasicRevertFailure() throws Throwable {
         AtomicInteger value = new AtomicInteger(0);
         Operation cmd = new RevertFailure(value);
 
@@ -118,7 +118,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             cmd.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -139,7 +139,7 @@ public class OperationFailureTest extends OperationTestBase {
      * @throws Exception if an operation throws during execution
      */
     @Test
-    public final void testBasicCleanupFailure() throws Exception {
+    public final void testBasicCleanupFailure() throws Throwable {
         AtomicInteger value = new AtomicInteger(0);
         Operation cmd = new CleanupFailure(value);
 
@@ -150,7 +150,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             cmd.close();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -163,7 +163,7 @@ public class OperationFailureTest extends OperationTestBase {
      * Verify that failures in the execute() method are handled properly.
      */
     @Test
-    public final void testDoubleExecuteFailure() throws Exception {
+    public final void testDoubleExecuteFailure() throws Throwable {
         AtomicInteger value = new AtomicInteger(0);
         Operation cmd = new IncrementOperation(value);
 
@@ -209,7 +209,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             seq.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -236,10 +236,10 @@ public class OperationFailureTest extends OperationTestBase {
      * This means that they don't resolve to isExecuted state as false, but are
      * still capable of cleaning up.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testSequenceRevertFailure() throws Exception {
+    public final void testSequenceRevertFailure() throws Throwable {
         OperationSequence seq = Operations.sequence();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -255,7 +255,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             seq.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -272,10 +272,10 @@ public class OperationFailureTest extends OperationTestBase {
      * This means that they clean up as cleanly as possible, but don't
      * throw errors.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testSequenceCleanupFailure() throws Exception {
+    public final void testSequenceCleanupFailure() throws Throwable {
         OperationSequence seq = Operations.sequence();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -311,7 +311,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             list.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -339,10 +339,10 @@ public class OperationFailureTest extends OperationTestBase {
      * This means that they don't resolve to isExecuted state as false, but are
      * still capable of cleaning up.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testParallelRevertFailure() throws Exception {
+    public final void testParallelRevertFailure() throws Throwable {
         OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -357,7 +357,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             list.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // This is the expected case
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -376,10 +376,10 @@ public class OperationFailureTest extends OperationTestBase {
      * This means that they clean up as cleanly as possible, but don't
      * throw errors.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testParallelCleanupFailure() throws Exception {
+    public final void testParallelCleanupFailure() throws Throwable {
         OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -416,7 +416,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             seq.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -448,7 +448,7 @@ public class OperationFailureTest extends OperationTestBase {
      * @throws Exception if an operation throws during execution
      */
     @Test
-    public final void testParallelRevertFailureWorstCase() throws Exception {
+    public final void testParallelRevertFailureWorstCase() throws Throwable {
         OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -463,7 +463,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             list.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // This is the expected case
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -486,7 +486,7 @@ public class OperationFailureTest extends OperationTestBase {
      * @throws Exception if an operation throws during execution
      */
     @Test
-    public final void testParallelCleanupFailureWorstCase() throws Exception {
+    public final void testParallelCleanupFailureWorstCase() throws Throwable {
         OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -512,7 +512,7 @@ public class OperationFailureTest extends OperationTestBase {
      * still capable of cleaning up.
      */
     @Test
-    public final void testParallelExecutePartialSuccess() throws Exception {
+    public final void testParallelExecutePartialSuccess() throws Throwable {
         OperationList list = Operations.list();
 
         AtomicInteger value = new AtomicInteger(0);
@@ -557,7 +557,7 @@ public class OperationFailureTest extends OperationTestBase {
         try {
             list.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);

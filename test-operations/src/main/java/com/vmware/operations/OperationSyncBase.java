@@ -38,7 +38,7 @@ public abstract class OperationSyncBase extends OperationBase {
     }
 
     @Override
-    public final void execute() throws Exception {
+    public final void execute() throws Throwable {
         executeImpl();
 
         // Unwrap the async exceptions
@@ -47,8 +47,8 @@ public abstract class OperationSyncBase extends OperationBase {
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
             Throwable cause = ex.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
+            if (cause != null) {
+                throw cause;
             } else {
                 throw ex;
             }
@@ -63,8 +63,8 @@ public abstract class OperationSyncBase extends OperationBase {
                 try {
                     executeImpl();
                     executionResult.complete(null);
-                } catch (Exception ex) {
-                    executionResult.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    executionResult.completeExceptionally(th);
                 }
             });
         } catch (Exception ex) {
@@ -77,7 +77,7 @@ public abstract class OperationSyncBase extends OperationBase {
     }
 
     @Override
-    public final void revert() throws Exception {
+    public final void revert() throws Throwable {
         revertImpl();
 
         // Unwrap the async exceptions
@@ -86,8 +86,8 @@ public abstract class OperationSyncBase extends OperationBase {
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
             Throwable cause = ex.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
+            if (cause != null) {
+                throw cause;
             } else {
                 throw ex;
             }
@@ -102,8 +102,8 @@ public abstract class OperationSyncBase extends OperationBase {
                 try {
                     revertImpl();
                     revertResult.complete(null);
-                } catch (Exception ex) {
-                    revertResult.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    revertResult.completeExceptionally(th);
                 }
             });
         } catch (Exception ex) {
@@ -146,8 +146,8 @@ public abstract class OperationSyncBase extends OperationBase {
                 try {
                     cleanup();
                     result.complete(null);
-                } catch (Exception ex) {
-                    result.completeExceptionally(ex);
+                } catch (Throwable th) {
+                    result.completeExceptionally(th);
                 }
             });
         } catch (Exception ex) {
@@ -165,13 +165,13 @@ public abstract class OperationSyncBase extends OperationBase {
      * Synchronous implementation of the operation.
      * @throws Exception if the operation cannot be completed
      */
-    public abstract void executeImpl() throws Exception;
+    public abstract void executeImpl() throws Throwable;
 
     /**
      * Synchronous revert implementation of the operation.
      * @throws Exception if the operation cannot be reverted
      */
-    public abstract void revertImpl() throws Exception;
+    public abstract void revertImpl() throws Throwable;
 
     @Override
     public abstract String toString();
