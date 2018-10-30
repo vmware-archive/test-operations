@@ -9,7 +9,7 @@ install:
   - mvn clean verify -B -V -P release
 
 after_success:
-  - cd test-operation && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report -P release
+  - cd $TRAVIS_BUILD_DIR/test-operation && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report -P release
 
 deploy:
   provider: script
