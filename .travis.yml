@@ -6,10 +6,10 @@ before_install:
   - tar -f gpg_files.tar -xO gpg-ownertrust | $GPG_EXECUTABLE --import-ownertrust
 
 install:
-  - mvn clean verify -B -V
+  - mvn clean verify -B -V -P release
 
 after_success:
-  - cd test-operation && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report
+  - cd test-operation && mvn -DrepoToken=$COVERALLS_TOKEN coveralls:report -P release
 
 deploy:
   provider: script
