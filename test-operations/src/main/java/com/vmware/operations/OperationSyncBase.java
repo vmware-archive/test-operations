@@ -67,8 +67,8 @@ public abstract class OperationSyncBase extends OperationBase {
                     executionResult.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            executionResult.completeExceptionally(ex);
+        } catch (Throwable th) {
+            executionResult.completeExceptionally(th);
         }
 
         // Compose the validators onto the execution result
@@ -106,8 +106,8 @@ public abstract class OperationSyncBase extends OperationBase {
                     revertResult.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            revertResult.completeExceptionally(ex);
+        } catch (Throwable th) {
+            revertResult.completeExceptionally(th);
         }
 
         // Compose the validators onto the revert result
@@ -150,8 +150,8 @@ public abstract class OperationSyncBase extends OperationBase {
                     result.completeExceptionally(th);
                 }
             });
-        } catch (Exception ex) {
-            result.completeExceptionally(ex);
+        } catch (Throwable th) {
+            result.completeExceptionally(th);
         }
         return result;
     }
