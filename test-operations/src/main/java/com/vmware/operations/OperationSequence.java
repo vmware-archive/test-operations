@@ -59,9 +59,9 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * This ensures that it will be cleaned up when this list is reverted/cleaned up.
      *
      * @param cmd the command to run
-     * @throws Exception if the execution cannot be completed
+     * @throws Throwable if the execution cannot be completed
      */
-    public void addExecute(Operation cmd) throws Exception {
+    public void addExecute(Operation cmd) throws Throwable {
         data.add(cmd);
         cmd.execute();
     }
@@ -119,7 +119,7 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * each one to complete before starting the next.
      */
     @Override
-    public void executeImpl() throws Exception {
+    public void executeImpl() throws Throwable {
         finish();
 
         logger.info("Executing {}", toString());
@@ -141,7 +141,7 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * operations where undone explicitly.
      */
     @Override
-    public void revertImpl() throws Exception {
+    public void revertImpl() throws Throwable {
         finish();
 
         logger.info("Reverting {}", toString());

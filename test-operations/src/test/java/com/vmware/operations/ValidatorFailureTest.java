@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.AssertionFailedError;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,7 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         @Override
         public void validateExecution(Operation op) {
-            throw new ArithmeticException("execute");
+            throw new AssertionError("execute");
         }
     }
 
@@ -50,7 +51,18 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         @Override
         public void validateRevert(Operation op) {
-            throw new ArithmeticException("revert");
+            throw new AssertionError("revert");
+        }
+    }
+
+    class SyncCleanupFailure extends IncrementSyncValidator {
+        SyncCleanupFailure(AtomicInteger data) {
+            super(data);
+        }
+
+        @Override
+        public void validateCleanup(Operation op) {
+            throw new AssertionError("cleanup");
         }
     }
 
@@ -61,7 +73,7 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         @Override
         public CompletableFuture<Void> validateExecution(ExecutorService executorService, Operation op) {
-            throw new ArithmeticException("execute");
+            throw new AssertionError("execute");
         }
     }
 
@@ -72,15 +84,29 @@ public class ValidatorFailureTest extends OperationTestBase {
 
         @Override
         public CompletableFuture<Void> validateRevert(ExecutorService executorService, Operation op) {
-            throw new ArithmeticException("revert");
+            throw new AssertionError("revert");
+        }
+    }
+
+    class AsyncCleanupFailure extends IncrementAsyncValidator {
+        AsyncCleanupFailure(AtomicInteger data) {
+            super(data);
+        }
+
+        @Override
+        public CompletableFuture<Void> validateCleanupAsync(ExecutorService executorService, Operation op) {
+            throw new AssertionError("cleanup");
         }
     }
 
     /**
-     * Verify that failures in the execute() method are handled properly.
+     * Verify that validation failures in the execute() method
+     * of sync operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testSyncExecuteFailure() throws Exception {
+    public final void testSyncValidatorExecuteFailure() throws Throwable {
         AtomicInteger opValue = new AtomicInteger(0);
         AtomicInteger validValue = new AtomicInteger(0);
 
@@ -90,7 +116,7 @@ public class ValidatorFailureTest extends OperationTestBase {
         try {
             cmd.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -116,12 +142,13 @@ public class ValidatorFailureTest extends OperationTestBase {
     }
 
     /**
-     * Verify that failures in the revert() method are handled properly.
+     * Verify that validation failures in the revert() method
+     * of sync operations are handled properly.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testSyncRevertFailure() throws Exception {
+    public final void testSyncValidatorRevertFailure() throws Throwable {
         AtomicInteger opValue = new AtomicInteger(0);
         AtomicInteger validValue = new AtomicInteger(0);
 
@@ -136,7 +163,7 @@ public class ValidatorFailureTest extends OperationTestBase {
         try {
             cmd.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -153,10 +180,38 @@ public class ValidatorFailureTest extends OperationTestBase {
     }
 
     /**
-     * Verify that failures in the execute() method are handled properly.
+     * Verify that validation failures in the cleanup() method
+     * of sync operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testAsyncExecuteFailure() throws Exception {
+    public final void testSyncValidatorCleanupFailure() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementOperation(opValue);
+        cmd.addValidator(new SyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the execute() method
+     * of sync operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testAsyncValidatorExecuteFailure() throws Throwable {
         AtomicInteger opValue = new AtomicInteger(0);
         AtomicInteger validValue = new AtomicInteger(0);
 
@@ -166,7 +221,7 @@ public class ValidatorFailureTest extends OperationTestBase {
         try {
             cmd.execute();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -192,12 +247,13 @@ public class ValidatorFailureTest extends OperationTestBase {
     }
 
     /**
-     * Verify that failures in the revert() method are handled properly.
+     * Verify that validation failures in the revert() method
+     * of sync operations are handled properly.
      *
-     * @throws Exception if an operation throws during execution
+     * @throws Throwable if an operation throws during execution
      */
     @Test
-    public final void testAsyncRevertFailure() throws Exception {
+    public final void testAsyncValidatorRevertFailure() throws Throwable {
         AtomicInteger opValue = new AtomicInteger(0);
         AtomicInteger validValue = new AtomicInteger(0);
 
@@ -212,7 +268,7 @@ public class ValidatorFailureTest extends OperationTestBase {
         try {
             cmd.revert();
             Assert.fail("Exception was not thrown");
-        } catch (ArithmeticException expected) {
+        } catch (AssertionError expected) {
             // Expected
         } catch (Throwable t) {
             Assert.fail("Unexpected exception type thrown: " + t);
@@ -227,4 +283,238 @@ public class ValidatorFailureTest extends OperationTestBase {
         Assert.assertEquals(0, opValue.get());
         Assert.assertEquals(1, validValue.get());
     }
+
+    /**
+     * Verify that validation failures in the revert() method
+     * of sync operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testAsyncValidatorCleanupFailure() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementOperation(opValue);
+        cmd.addValidator(new AsyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the execute() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testSyncValidatorExecuteFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new SyncExecuteFailure(validValue));
+
+        try {
+            cmd.execute();
+            Assert.fail("Exception was not thrown");
+        } catch (AssertionError expected) {
+            // Expected
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(0, validValue.get());
+
+        // The revert command should execute without error.
+        // The validator will also run, so we see the side-effect
+        // value getting incremented.
+        cmd.revert();
+
+        Assert.assertFalse(cmd.isExecuted());
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the revert() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testSyncValidatorRevertFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new SyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        try {
+            cmd.revert();
+            Assert.fail("Exception was not thrown");
+        } catch (AssertionError expected) {
+            // Expected
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        Assert.assertFalse(cmd.isExecuted());
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the cleanup() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testSyncValidatorCleanupFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new SyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the execute() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testAsyncValidatorExecuteFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new AsyncExecuteFailure(validValue));
+
+        try {
+            cmd.execute();
+            Assert.fail("Exception was not thrown");
+        } catch (AssertionError expected) {
+            // Expected
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(0, validValue.get());
+
+        // The revert command should execute without error.
+        // The validator will also run, so we see the side-effect
+        // value getting decremented.
+        cmd.revert();
+
+        Assert.assertFalse(cmd.isExecuted());
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1000, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the revert() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testAsyncValidatorRevertFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new AsyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        try {
+            cmd.revert();
+            Assert.fail("Exception was not thrown");
+        } catch (AssertionError expected) {
+            // Expected
+        } catch (Throwable t) {
+            Assert.fail("Unexpected exception type thrown: " + t);
+        }
+
+        Assert.assertFalse(cmd.isExecuted());
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
+    /**
+     * Verify that validation failures in the revert() method
+     * of async operations are handled properly.
+     *
+     * @throws Throwable if an operation throws during execution
+     */
+    @Test
+    public final void testAsyncValidatorCleanupFailureAsync() throws Throwable {
+        AtomicInteger opValue = new AtomicInteger(0);
+        AtomicInteger validValue = new AtomicInteger(0);
+
+        Operation cmd = new IncrementAsyncOperation(opValue);
+        cmd.addValidator(new AsyncRevertFailure(validValue));
+
+        cmd.execute();
+        Assert.assertTrue(cmd.isExecuted());
+        Assert.assertEquals(1, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+
+        cmd.close();
+        Assert.assertEquals(0, opValue.get());
+        Assert.assertEquals(1, validValue.get());
+    }
+
 }

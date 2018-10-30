@@ -36,9 +36,9 @@ public abstract class ValidatorAsyncBase<T extends Operation> implements Validat
             @SuppressWarnings({"unchecked"})
             T expectedInitiatingOp = (T) initiatingOp;
             return validateExecution(executorService, expectedInitiatingOp);
-        } catch (Exception ex) {
+        } catch (Throwable th) {
             CompletableFuture<Void> result = new CompletableFuture<>();
-            result.completeExceptionally(ex);
+            result.completeExceptionally(th);
             return result;
         }
 
@@ -51,9 +51,9 @@ public abstract class ValidatorAsyncBase<T extends Operation> implements Validat
             @SuppressWarnings({"unchecked"})
             T expectedInitiatingOp = (T) initiatingOp;
             return validateRevert(executorService, expectedInitiatingOp);
-        } catch (Exception ex) {
+        } catch (Throwable th) {
             CompletableFuture<Void> result = new CompletableFuture<>();
-            result.completeExceptionally(ex);
+            result.completeExceptionally(th);
             return result;
         }
     }

@@ -54,7 +54,7 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
-    public final void testSequenceBasic() throws Exception {
+    public final void testSequenceBasic() throws Throwable {
         final long delayMillis = 100;
         OperationSequence seq = Operations.sequence();
 
@@ -101,7 +101,7 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
-    public final void testParallelBasic() throws Exception {
+    public final void testParallelBasic() throws Throwable {
         final long delayMillis = 200;
         OperationCollection list = Operations.list();
 
@@ -157,7 +157,7 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
-    public final void testSingleThreadedParallel() throws Exception {
+    public final void testSingleThreadedParallel() throws Throwable {
         final long delayMillis = 200;
         Operations.setExecutorService(Executors.newSingleThreadExecutor());
         try {
@@ -232,7 +232,7 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
-    public final void testSequenceScale() throws Exception {
+    public final void testSequenceScale() throws Throwable {
         AtomicInteger value = new AtomicInteger(1);
 
         try (OperationSequence seq = Operations.sequence()) {
@@ -264,7 +264,7 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
-    public final void testParallelScale() throws Exception {
+    public final void testParallelScale() throws Throwable {
         AtomicInteger value = new AtomicInteger(0);
 
         try (OperationCollection seq = Operations.list()) {

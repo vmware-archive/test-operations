@@ -79,9 +79,9 @@ public interface Operation extends AutoCloseable {
      * Throws an error on failure.
      * When the execution has completed, isExecuted() will return true.
      *
-     * @throws Exception if the operation fails
+     * @throws Throwable if the operation fails
      */
-    void execute() throws Exception;
+    void execute() throws Throwable;
 
     /**
      * Perform the command.
@@ -96,9 +96,9 @@ public interface Operation extends AutoCloseable {
      * Throws an IllegalStateException on failure.
      * When the revert has completed, isExecuted() will return false.
      *
-     * @throws Exception if the revert operation fails
+     * @throws Throwable if the revert operation fails
      */
-    void revert() throws Exception;
+    void revert() throws Throwable;
 
     /**
      * "Un-perform" a command.

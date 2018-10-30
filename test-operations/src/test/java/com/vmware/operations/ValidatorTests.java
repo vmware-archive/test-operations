@@ -18,6 +18,7 @@
 
 package com.vmware.operations;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -28,11 +29,35 @@ import org.testng.annotations.Test;
  */
 public class ValidatorTests {
 
+    class RevertFailure extends IncrementOperation {
+        RevertFailure(AtomicInteger data) {
+            super(data);
+        }
+
+        @Override
+        public void revertImpl() {
+            throw new AssertionError("revert");
+        }
+    }
+
+    class AsyncRevertFailure extends IncrementAsyncOperation {
+        AsyncRevertFailure(AtomicInteger data) {
+            super(data);
+        }
+
+        @Override
+        public CompletableFuture<Void> revertImpl() {
+            CompletableFuture<Void> result = new CompletableFuture<>();
+            result.completeExceptionally(new AssertionError("revert"));
+            return result;
+        }
+    }
+
     /**
      * Validates basic validation
      */
     @Test
-    public final void testOneSyncValidator() throws Exception {
+    public final void testOneSyncValidator() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
@@ -52,7 +77,7 @@ public class ValidatorTests {
      * Validates basic validation
      */
     @Test
-    public final void testOneAsyncValidator() throws Exception {
+    public final void testOneAsyncValidator() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
@@ -72,7 +97,7 @@ public class ValidatorTests {
      * Validates cleanup aspect of validation
      */
     @Test
-    public final void testOneSyncValidatorCleanup() throws Exception {
+    public final void testOneSyncValidatorRevert() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
@@ -92,11 +117,91 @@ public class ValidatorTests {
      * Validates cleanup aspect of validation
      */
     @Test
-    public final void testOneAsyncValidatorCleanup() throws Exception {
+    public final void testOneSyncValidatorRevertAsync() throws Throwable {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementAsyncOperation op = new IncrementAsyncOperation(opCount);
+        op.addValidator(new IncrementSyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 0, opCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneSyncValidatorCleanup() throws Throwable {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementOperation op = new RevertFailure(opCount);
+        op.addValidator(new IncrementSyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1000001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneSyncValidatorCleanupAsync() throws Throwable {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementAsyncOperation op = new AsyncRevertFailure(opCount);
+        op.addValidator(new IncrementSyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1000001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneAsyncValidatorCleanup() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
         IncrementOperation op = new IncrementOperation(opCount);
+        op.addValidator(new IncrementAsyncValidator(validationCount));
+
+        op.execute();
+        Assert.assertEquals("operation count should match", 1, opCount.get());
+        Assert.assertEquals("validation count should match", 1, validationCount.get());
+
+        op.close();
+        Assert.assertEquals("operation count should match", 0, opCount.get());
+        Assert.assertEquals("validation count should match", 1001, validationCount.get());
+    }
+
+    /**
+     * Validates cleanup aspect of validation
+     */
+    @Test
+    public final void testOneAsyncValidatorCleanupAsync() throws Throwable {
+        AtomicInteger opCount = new AtomicInteger();
+        AtomicInteger validationCount = new AtomicInteger();
+
+        IncrementAsyncOperation op = new IncrementAsyncOperation(opCount);
         op.addValidator(new IncrementAsyncValidator(validationCount));
 
         op.execute();
@@ -112,7 +217,7 @@ public class ValidatorTests {
      * Validates removal of Validators by type
      */
     @Test
-    public final void testClassRemoval() throws Exception {
+    public final void testClassRemoval() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
@@ -134,7 +239,7 @@ public class ValidatorTests {
      * Validates removal of Validators by predicate
      */
     @Test
-    public final void testPredicateRemoval() throws Exception {
+    public final void testPredicateRemoval() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 
@@ -156,7 +261,7 @@ public class ValidatorTests {
      * Validates removal of all Validators
      */
     @Test
-    public final void TestAllRemoval() throws Exception {
+    public final void TestAllRemoval() throws Throwable {
         AtomicInteger opCount = new AtomicInteger();
         AtomicInteger validationCount = new AtomicInteger();
 

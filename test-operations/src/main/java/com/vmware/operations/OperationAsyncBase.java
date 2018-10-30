@@ -47,15 +47,15 @@ public abstract class OperationAsyncBase extends OperationBase {
      * @see com.vmware.operations.Operation#execute()
      */
     @Override
-    public final void execute() throws Exception {
+    public final void execute() throws Throwable {
         try {
             logger.debug("Executing {} [async]", toString());
-            executeImpl().get();
+            executeAsync().get();
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
             Throwable cause = ex.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
+            if (cause != null) {
+                throw cause;
             } else {
                 throw ex;
             }
@@ -73,15 +73,15 @@ public abstract class OperationAsyncBase extends OperationBase {
      * @see com.vmware.operations.Operation#revert()
      */
     @Override
-    public final void revert() throws Exception {
+    public final void revert() throws Throwable {
         try {
             logger.debug("Reverting {} [async]", toString());
-            revertImpl().get();
+            revertAsync().get();
         } catch (ExecutionException ex) {
             // Unwrap the exception if possible
             Throwable cause = ex.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
+            if (cause != null) {
+                throw cause;
             } else {
                 throw ex;
             }
@@ -90,9 +90,9 @@ public abstract class OperationAsyncBase extends OperationBase {
 
     @Override
     public final CompletableFuture<Void> revertAsync() {
-        // Compose the validators onto the revert result
-        return revertImpl().thenComposeAsync(
-                (unused) -> validateRevert(executorService), executorService);
+        // If revert fails, then call cleanup
+        return revertImpl()
+                .thenCompose(unused -> validateRevert(executorService));
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class OperationAsyncBase extends OperationBase {
         try {
             cleanupAsync().get();
         } catch (Exception ex) {
-            // Swallow the error
+            // This should never happen
         }
     }
 
@@ -112,24 +112,13 @@ public abstract class OperationAsyncBase extends OperationBase {
      */
     @Override
     public CompletableFuture<Void> cleanupAsync() {
-        try {
-            if (isExecuted()) {
-                return revertAsync();
-            }
-        } catch (Throwable throwable) {
-            // Catch all failures, and suppress them during cleanup
-            logger.info("Cleanup error {}", throwable.getMessage());
-        }
-
-        // Tell the validators goodbye, in case revert failed.
-        try {
-            validateCleanup(executorService);
-        } catch (Throwable throwable) {
-            // Catch all failures, and suppress them during cleanup
-            logger.info("Cleanup validators error {}", throwable.getMessage());
-        }
-
-        return CompletableFuture.completedFuture(null);
+        CompletableFuture<Void> start = isExecuted() ? revertAsync() : CompletableFuture.completedFuture(null);
+        return start.exceptionally(throwable -> validateCleanup(executorService).join())
+                .exceptionally(throwable -> {
+                    // Catch all failures, and suppress them during cleanup
+                    logger.info("Cleanup validator error {}", throwable.getMessage());
+                    return null;
+                });
     }
 
     /**
@@ -139,7 +128,7 @@ public abstract class OperationAsyncBase extends OperationBase {
     public void close() {
         try {
             cleanup();
-        } catch (Exception ex) {
+        } catch (Throwable th) {
             // Catch all failures, and suppress them during cleanup
         }
     }
