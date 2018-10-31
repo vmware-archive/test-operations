@@ -6,10 +6,8 @@ before_install:
   - tar -f gpg_files.tar -xO gpg-ownertrust | $GPG_EXECUTABLE --import-ownertrust
 
 install:
-  - mvn clean verify -B -V -P release
-
-script:
-  - cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release test jacoco:report
+  - mvn -P release clean verify -B -V
+  - mvn -P release test jacoco:report
 
 after_success:
   - cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release -DrepoToken=$COVERALLS_TOKEN coveralls:report
