@@ -13,7 +13,8 @@ The actual submission to Sonatype/Maven Central is done by the CI/CD system, whe
 Steps
 -----
 
-1. `mvn versions:display-dependency-updates -P release`
+1. `mvn versions:display-plugin-updates -P release`
+   `mvn versions:display-dependency-updates -P release`
 
    This command will verify that the dependent versions are up to date, and ensures that the project has the latest security fixes.
 
