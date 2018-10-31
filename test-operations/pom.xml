@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.vmware.test-operations</groupId>
     <artifactId>test-operations-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>test-operations</artifactId>
   <!--
@@ -110,7 +110,7 @@
     <dependency>
       <groupId>com.vmware.test-operations</groupId>
       <artifactId>test-utilities</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -141,6 +141,6 @@
   </dependencies>
 
   <scm>
-    <tag>test-operations-parent-1.0.0</tag>
+    <tag>1.0.0</tag>
   </scm>
 </project>
