@@ -110,7 +110,7 @@
     <dependency>
       <groupId>com.vmware.test-operations</groupId>
       <artifactId>test-utilities</artifactId>
-      <version>${project.version}</version>
+      <version>1.0.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -139,4 +139,8 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <scm>
+    <tag>1.0.0</tag>
+  </scm>
 </project>
