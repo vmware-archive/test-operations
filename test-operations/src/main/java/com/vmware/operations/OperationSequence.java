@@ -51,7 +51,9 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * @param cmd the command to run
      */
     public void add(Operation cmd) {
-        data.add(cmd);
+        if (cmd != null) {
+            data.add(cmd);
+        }
     }
 
     /**
@@ -62,8 +64,10 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
      * @throws Throwable if the execution cannot be completed
      */
     public void addExecute(Operation cmd) throws Throwable {
-        data.add(cmd);
-        cmd.execute();
+        if (cmd != null) {
+            data.add(cmd);
+            cmd.execute();
+        }
     }
 
     /**

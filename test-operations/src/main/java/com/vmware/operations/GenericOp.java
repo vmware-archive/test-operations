@@ -21,9 +21,9 @@ package com.vmware.operations;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +38,20 @@ public class GenericOp<T> extends OperationSyncBase {
 
     private String name;
     private T data;
-    private Deque<Function<T, Void>> executeFunctions = new ArrayDeque<>(4);
-    private Deque<Function<T, Void>> revertFunctions = new ArrayDeque<>(4);
-    private AtomicBoolean isExecuted = new AtomicBoolean();
+    private Deque<Consumer<T>> executeFunctions = new ArrayDeque<>();
+    private Deque<Consumer<T>> revertFunctions = new ArrayDeque<>();
+
+    private Deque<Consumer<T>> uncalledRevertFunctions = null;
+
+    /**
+     * Constructor of the generic operation.  Execute and revert
+     * functions are added dynamically by the caller.
+     *
+     * @param data data object passed from constructor
+     */
+    public GenericOp(T data) {
+        this(null, data);
+    }
 
     /**
      * Constructor of the generic operation.  Execute and revert
@@ -56,24 +67,13 @@ public class GenericOp<T> extends OperationSyncBase {
     }
 
     /**
-     * Constructor of the generic operation.  Execute and revert
-     * functions are added dynamically by the caller.
-     *
-     * @param data data object passed from constructor
-     */
-    public GenericOp(T data) {
-        super(Operations.getExecutorService());
-        this.data = data;
-    }
-
-    /**
      * Add a new execution function to the operation.
      * Functions are executed in FIFO order.
      * This function cannot be called after the operation has been executed.
      *
      * @param function work function called during execute phase of the operation
      */
-    public void addExecuteFunction(Function<T, Void> function) {
+    public void addExecuteFunction(Consumer<T> function) {
         throwIfExecuted();
         this.executeFunctions.addLast(function);
     }
@@ -85,13 +85,13 @@ public class GenericOp<T> extends OperationSyncBase {
      *
      * @param function work function called during revert and cleanup phase of the operation
      */
-    public void addRevertFunction(Function<T, Void> function) {
+    public void addRevertFunction(Consumer<T> function) {
         this.revertFunctions.addFirst(function);
     }
 
     @Override
     public boolean isExecuted() {
-        return isExecuted.get();
+        return uncalledRevertFunctions != null;
     }
 
     @Override
@@ -99,10 +99,16 @@ public class GenericOp<T> extends OperationSyncBase {
         logger.info("Executing {}", toString());
 
         throwIfExecuted();
-        for (Function<T, Void> fn : executeFunctions) {
-            fn.apply(data);
+        for (Consumer<T> fn : executeFunctions) {
+            fn.accept(data);
         }
-        Assert.assertTrue(isExecuted.compareAndSet(false, true));
+
+        // copy revert functions to uncalled list
+        uncalledRevertFunctions = new ArrayDeque<>(revertFunctions);
+    }
+
+    T getData() {
+        return this.data;
     }
 
     @Override
@@ -110,29 +116,40 @@ public class GenericOp<T> extends OperationSyncBase {
         logger.info("Reverting {}", toString());
 
         throwIfNotExecuted();
-        for (Function<T, Void> fn : revertFunctions) {
-            fn.apply(data);
+
+        if (uncalledRevertFunctions != null) {
+            while (uncalledRevertFunctions.size() > 0) {
+                Consumer<T> fn = uncalledRevertFunctions.getFirst();
+                fn.accept(data);
+                uncalledRevertFunctions.removeFirst();
+            }
+
+            uncalledRevertFunctions = null;
         }
-        Assert.assertTrue(isExecuted.compareAndSet(true, false));
     }
 
     /**
      * Clean up the revert functions individually, in case
-     * some throw execptions during their revert functionality.
+     * some throw exceptions during their revert functionality.
      */
     @Override
     public void cleanup() {
         logger.info("Cleaning {}", toString());
 
-        if (isExecuted()) {
-            for (Function<T, Void> fn : revertFunctions) {
+        if (uncalledRevertFunctions != null) {
+            while (uncalledRevertFunctions.size() > 0) {
+                Consumer<T> fn = uncalledRevertFunctions.getFirst();
+
                 try {
-                    fn.apply(data);
+                    fn.accept(data);
                 } catch (Throwable t) {
                     // Catch failures, and suppress them during cleanup
                     logger.debug("Cleanup error {}", t.getMessage());
                 }
+                uncalledRevertFunctions.removeFirst();
             }
+
+            uncalledRevertFunctions = null;
         }
     }
 

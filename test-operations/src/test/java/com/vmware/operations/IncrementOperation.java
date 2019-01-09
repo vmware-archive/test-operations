@@ -43,7 +43,6 @@ public class IncrementOperation extends OperationSyncBase {
      * @param data AtomicInteger container
      */
     public IncrementOperation(AtomicInteger data) {
-        super(Operations.getExecutorService());
         Assert.assertNotNull(data);
         this.data = data;
     }

@@ -38,6 +38,11 @@ public abstract class OperationAsyncBase extends OperationBase {
 
     private final ExecutorService executorService;
 
+    protected OperationAsyncBase() {
+        super();
+        this.executorService = Operations.getExecutorService();
+    }
+
     protected OperationAsyncBase(ExecutorService executorService) {
         super();
         this.executorService = executorService;

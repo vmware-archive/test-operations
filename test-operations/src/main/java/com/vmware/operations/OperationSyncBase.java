@@ -32,6 +32,11 @@ import java.util.concurrent.ExecutorService;
 public abstract class OperationSyncBase extends OperationBase {
     private final ExecutorService executorService;
 
+    protected OperationSyncBase() {
+        super();
+        this.executorService = Operations.getExecutorService();
+    }
+
     protected OperationSyncBase(ExecutorService executorService) {
         super();
         this.executorService = executorService;

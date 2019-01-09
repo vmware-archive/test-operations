@@ -46,7 +46,6 @@ public class IncrementAsyncOperation extends OperationAsyncBase {
      * @param data AtomicInteger container
      */
     public IncrementAsyncOperation(AtomicInteger data) {
-        super(Operations.getExecutorService());
         Assert.assertNotNull(data);
         this.data = data;
     }
