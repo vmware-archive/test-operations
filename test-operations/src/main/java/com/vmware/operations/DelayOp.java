@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A generic operation implementation that uses dynamic function calls
  * for execute and revert.
- * <p/>
+ * <p>
  * This allows for dynamic operations, or linking two operations together.
  */
 public class DelayOp extends OperationSyncBase {
@@ -51,6 +51,8 @@ public class DelayOp extends OperationSyncBase {
 
     /**
      * Alternate constructor for the most basic case of delaying the execution.
+     *
+     * @param d delay time expressed as a {@link java.time.Duration}
      */
     public DelayOp(Duration d) {
         super(Operations.getExecutorService());

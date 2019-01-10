@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A generic operation implementation that uses dynamic function calls
  * for execute and revert.
- * <p/>
+ * <p>
  * This allows for dynamic operations, or linking two operations together.
  */
 public class GenericOp<T> extends OperationSyncBase {
