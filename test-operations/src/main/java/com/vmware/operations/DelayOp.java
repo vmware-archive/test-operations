@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * This allows for dynamic operations, or linking two operations together.
  */
 public class DelayOp extends OperationSyncBase {
-    private final static Logger logger = LoggerFactory.getLogger(DelayOp.class);
+    private static final Logger logger = LoggerFactory.getLogger(DelayOp.class);
 
     // Maximum delay is 100 minutes
     private final long maximumDelayMs = 100 * 60 * 1000L;

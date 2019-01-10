@@ -20,9 +20,7 @@ package com.vmware.operations;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * This allows for dynamic operations, or linking two operations together.
  */
 public class GenericOp<T> extends OperationSyncBase {
-    private final static Logger logger = LoggerFactory.getLogger(GenericOp.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericOp.class);
 
     private String name;
     private T data;
@@ -148,7 +146,7 @@ public class GenericOp<T> extends OperationSyncBase {
                 }
                 uncalledRevertFunctions.removeFirst();
             }
-
+ø
             uncalledRevertFunctions = null;
         }
     }
