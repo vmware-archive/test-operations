@@ -146,7 +146,7 @@ public class GenericOp<T> extends OperationSyncBase {
                 }
                 uncalledRevertFunctions.removeFirst();
             }
-ø
+
             uncalledRevertFunctions = null;
         }
     }
