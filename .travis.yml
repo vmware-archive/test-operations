@@ -4,8 +4,8 @@ before_install:
   - cd $TRAVIS_BUILD_DIR && bash build-resources/extract_jar_signing_artifacts.sh $encrypted_e586968263a2_key $encrypted_e586968263a2_iv
 
 install:
-  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] && mvn -P release clean verify -B -V'
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean verify -B -V'
+  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] && mvn clean verify -B -V'
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn -P release clean verify -B -V'
   - mvn test jacoco:report
 
 after_success:
