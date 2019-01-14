@@ -3,7 +3,7 @@
 * [Writing Operations](#operations)  
 * [Validation](#validators)
 * [Operation Collections](#collections)  
- 
+
 <a name="interface"/>
 
 ## The interface
@@ -63,6 +63,61 @@ void cleanup();
 ```
 <a name="operations"/>
 
+## More on design
+
+When writing tests, generally there are two problems to solve.  Operations can help
+with both of them, but it is important to understand their dual role to get the most
+value out of writing your tests with Operations.
+
+### Role #1: Setup a scenario for testing
+
+In this capacity, Operations are the essential building blocks for creating a scenario.
+
+As building blocks, they should be easy to configure for the default cases, with as
+few dependencies as possible.  For example, maybe you are creating a bank application and
+want to create a new account.  The CreateAccountOp should take a single parameter to configures
+itself, which would be the person who is the account holder.
+
+To control the other parts of configuration, it is helpful to write fluent configuration functions.
+These might allow you to specify an account type or fee schedule, things which can be defaulted.
+
+The important thing is to remember that the users of your CreateAccountOp will likely not be too
+concerned about the details of the account, so they should be hidden.  That way they can focus on
+their specific problems of legal compliance or tax rules, or whatever.
+
+### Role #2: Validating conditions
+
+As test, the goal is all about validating conditions, and operations make a great place to
+attach methods used for validations, since they already have a fair amount of state available
+to them.
+
+#### Basic validations
+
+Validations that are computationally cheap, such as null pointer checks, equality checks and the like,
+should always be included directly in the execute() and revert() implementations.  This provides
+the highest level of confidence that implementations are correct every time the test is run.
+
+#### Complex Validations
+
+For complex validations, there are two options.  The first is to add methods to the operation which
+can be called directly from tests where they are relevant.  Confirming that external systems
+are in sync with local systems, or iterating over large lists and validating items are examples where
+this option makes sense.
+
+#### Validator Classes
+
+The other option for complex validations is to add validator instances to operations.  This powerful
+mechanism allows you to configure the validators, and add or remove specific validators based on the
+testing situation.
+
+Validators are also called during cleanup, so they can be a good option to ensure that resources on
+external systems are cleaned up when running generic operations.
+
+Generally, validators will be added by test writers, but they can also be added to operations by default,
+and test writers still have full control to remove them in order to test specific scenarios or speed
+up long-running scenarios.
+
+
 ## Writing Operations
 
 Two base classes for Operations are provided, depending on whether the test code
@@ -115,7 +170,7 @@ public class CreateFolderOp extends OperationSyncBase {
         this.writeable = writeable;
         return this;
     }
-    
+
     @Override
     public void executeImpl() throws Exception {
         Path basePath;
@@ -129,7 +184,7 @@ public class CreateFolderOp extends OperationSyncBase {
 
         logger.info("Creating folder {}", path.toString());
         Files.createDirectories(path);
-        
+
         path.toFile().setWritable(writeable);
     }
 
@@ -233,7 +288,7 @@ remove some validations or add others.
 
 ### OperationCollections
 
-Groups of operations can be treated as operations themselves. 
+Groups of operations can be treated as operations themselves.
 
 Both serialized collections (OperationSequence) and parallel collections (OperationList) are implemented.
 
@@ -260,7 +315,7 @@ public void fooTest() throws Exception {
   try (ops = Operations.sequence()) {
       Operation firstOp = new SomeOperation();
       ops.addExecute(firstOp);
-      
+
       Operation secondOp = new SomeOperation();
       ops.addExecute(secondOp);
   }
@@ -285,7 +340,7 @@ This can be useful for testing race conditions and first-wins style API calls.
 
 All the elements of a list will be cleaned up when the list is cleaned up,
 but note that only successfully executed elements will call to revertImpl by default.
- 
+
 #### Combining collections
 
 Combining parallel lists, and sequential lists, with chained operation calls can

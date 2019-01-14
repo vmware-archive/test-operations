@@ -54,6 +54,22 @@ public class OperationTest {
      * @throws Exception for unexpected exceptions
      */
     @Test
+    public final void testSequenceNull() throws Throwable {
+        OperationSequence seq = Operations.sequence();
+        seq.add(null);
+        seq.addExecute(null);
+
+        Assert.assertTrue(seq.isEmpty());
+
+        seq.close();
+    }
+
+    /**
+     * Test method for {@link com.vmware.operations.Operation}.
+     *
+     * @throws Exception for unexpected exceptions
+     */
+    @Test
     public final void testSequenceBasic() throws Throwable {
         final long delayMillis = 100;
         OperationSequence seq = Operations.sequence();
@@ -93,6 +109,21 @@ public class OperationTest {
                 executionTime >= seq.size() * delayMillis);
 
         seq.close();
+    }
+
+    /**
+     * Test method for {@link com.vmware.operations.Operation}.
+     *
+     * @throws Exception for unexpected exceptions
+     */
+    @Test
+    public final void testParallelNull() throws Throwable {
+        OperationCollection list = Operations.list();
+        list.add(null);
+
+        Assert.assertTrue(list.isEmpty());
+
+        list.close();
     }
 
     /**

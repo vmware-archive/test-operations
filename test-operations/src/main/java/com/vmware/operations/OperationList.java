@@ -90,7 +90,9 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
 
     @Override
     public void add(Operation op) {
-        operations.add(op);
+        if (op != null) {
+            operations.add(op);
+        }
     }
 
     @Override
