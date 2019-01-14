@@ -1,16 +1,14 @@
 language: java
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_e586968263a2_key -iv $encrypted_e586968263a2_iv -in build-resources/gpg_files.tar.enc -out gpg_files.tar -d
-  - tar -f gpg_files.tar -xO gpg-secret-keys | $GPG_EXECUTABLE --import
-  - tar -f gpg_files.tar -xO gpg-ownertrust | $GPG_EXECUTABLE --import-ownertrust
+  - cd $TRAVIS_BUILD_DIR && bash build-resources/extract_jar_signing_artifacts.sh $encrypted_e586968263a2_key $encrypted_e586968263a2_iv
 
 install:
   - mvn -P release clean verify -B -V
   - mvn -P release test jacoco:report
 
 after_success:
-  - cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release -DrepoToken=$COVERALLS_TOKEN coveralls:report
+  - if [ "$COVERALLS_TOKEN" != "" ]; then cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release -DrepoToken=$COVERALLS_TOKEN coveralls:report; fi
 
 deploy:
   provider: script
