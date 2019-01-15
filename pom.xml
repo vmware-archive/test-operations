@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vmware.test-operations</groupId>
     <artifactId>test-operations-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.1.0</version>
 
     <packaging>pom</packaging>
 
@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:git:https://github.com/vmware/test-operations.git</connection>
         <url>https://github.com/vmware/test-operations</url>
-      <tag>test-operations-parent-1.0.0</tag>
+      <tag>test-operations-parent-1.1.0</tag>
     </scm>
 
     <properties>
