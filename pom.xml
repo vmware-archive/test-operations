@@ -209,30 +209,22 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>2.17</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.puppycrawl.tools</groupId>
-                                <artifactId>checkstyle</artifactId>
-                                <version>8.14</version>
-                            </dependency>
-                        </dependencies>
+                        <version>3.0.0</version>
                         <executions>
                             <execution>
-                                <id>verify-style</id>
-                                <phase>process-classes</phase>
+                                <id>validate</id>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <configLocation>build-resources/checkstyle.xml</configLocation>
+                                    <failsOnError>true</failsOnError>
+                                    <linkXRef>false</linkXRef>
+                                    <consoleOutput>true</consoleOutput>
+                                </configuration>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <configLocation>build-resources/checkstyle.xml</configLocation>
-                            <logViolationsToConsole>true</logViolationsToConsole>
-                            <failOnViolation>true</failOnViolation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                        </configuration>
                     </plugin>
 
                     <!-- This configures the spotbugs plugin for Java static code checking -->
