@@ -239,7 +239,7 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>3.1.6</version>
+                        <version>3.1.10</version>
                         <configuration>
                             <effort>High</effort>
                             <threshold>Default</threshold>
@@ -251,14 +251,21 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <dependencies>
-                            <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
-                            <dependency>
-                                <groupId>com.github.spotbugs</groupId>
-                                <artifactId>spotbugs</artifactId>
-                                <version>3.1.8</version>
-                            </dependency>
-                        </dependencies>
+                    </plugin>
+
+                    <!-- Configure the Javadoc JAR file -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -302,23 +309,6 @@
                     </plugin>
 
                     <!--
-                      Configure the Javadoc JAR file
-                      -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!--
                      Sign the components using GPG, so that they can be deployed to Sonatype
                     -->
                     <plugin>
@@ -342,7 +332,7 @@
                     <plugin>
                       <groupId>org.sonatype.plugins</groupId>
                       <artifactId>nexus-staging-maven-plugin</artifactId>
-                      <version>1.6.7</version>
+                      <version>1.6.8</version>
                       <extensions>true</extensions>
                       <configuration>
                         <serverId>ossrh</serverId>
