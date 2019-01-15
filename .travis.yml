@@ -4,12 +4,15 @@ language: java
 before_install:
   - cd $TRAVIS_BUILD_DIR && bash build-resources/extract_jar_signing_artifacts.sh $encrypted_e586968263a2_key $encrypted_e586968263a2_iv
 
-# The tests ensure that signed jars (built as part of release builds) are not built on pull requests, only
-# mainline builds.
+# The environment variable checks ensure that signed jars (built as part of release builds) are
+# not built on pull requests, only mainline builds.
 install:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] || mvn clean verify -B -V'
-  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || mvn -P release clean verify -B -V'
-  - mvn test jacoco:report
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] || mvn clean install -DskipTests=true -B -V'
+  - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || mvn -P release clean install -DskipTests=true -B -V'
+
+# This re-runs the maven lifecycle with tests for coverage reporting
+script:
+  - mvn test jacoco:report -B
 
 after_success:
   - if [ "$COVERALLS_TOKEN" != "" ]; then cd $TRAVIS_BUILD_DIR/test-operations && mvn -P release -DrepoToken=$COVERALLS_TOKEN coveralls:report; fi
