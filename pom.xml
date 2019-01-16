@@ -7,7 +7,7 @@
 
     <packaging>pom</packaging>
 
-    <name>test-operations</name>
+    <name>test-operations-parent</name>
     <description>A framework to create test building blocks.
         An Operation is an adaptation of the command pattern that knows how to revert executed commands,
         so that artifacts are not left behind after the test is complete.
@@ -59,22 +59,23 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>3.0.0-M2</version>
-          <executions>
+          <configuration>
+            <rules>
+              <requireMavenVersion>
+                <version>[3.3.9,)</version>
+              </requireMavenVersion>
+              <requireJavaVersion>
+                <version>1.8</version>
+              </requireJavaVersion>
+            </rules>
+            <fail>true</fail>
+          </configuration>
+            <executions>
             <execution>
-              <id>enforce-maven</id>
+              <id>enforce-versions</id>
               <goals>
                 <goal>enforce</goal>
               </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>3.3.9</version>
-                  </requireMavenVersion>
-                  <requireJavaVersion>
-                    <version>1.8</version>
-                  </requireJavaVersion>
-                </rules>
-              </configuration>
             </execution>
           </executions>
         </plugin>
