@@ -77,14 +77,7 @@ public class FuzzUtils {
             prefix = "";
         }
 
-        // first part of the entropy string is time based, with later times appearing lexicographically earlier,
-        // so that recent objects will be first in the paged lists.
-        long millisSinceEpoch = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
-
-        // We do this by calculating a time delta until 01 Jan 2020 00:00:00 GMT, then finding hours
-        long sentinel = 1577836800000L;
-        int timeHeader = (int) ((sentinel - millisSinceEpoch) / 3600000);
-        String timeEntropy = Integer.toString(timeHeader, 36);
+        String timeEntropy = getTimeEntropyPrefix(3_600_000, 3);
 
         minEntropy -= timeEntropy.length();
         if (minEntropy < 0) {
@@ -92,6 +85,29 @@ public class FuzzUtils {
         }
 
         return getRandomizedString(prefix + timeEntropy, charset, minEntropy, minLength);
+    }
+
+    /**
+     * Calculate a prefix based on the current time.
+     * first part of the entropy string is time based, with later times appearing lexicographically earlier,
+     * so that recent objects will be first in the paged lists.
+     * @param granularity number of milliseconds between different values
+     * @param numChars number of characters to return
+     */
+    private static String getTimeEntropyPrefix(int granularity, int numChars) {
+        long millisSinceEpoch = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+
+        // We do this by calculating a time delta until the end of time, then finding hours and modding to come
+        // up with a decreasing, cyclic, time-based prefix.
+        long intervalsUntilEndOfTime = (-millisSinceEpoch & 0x7FFF_FFFF_FFFF_FFFFL) / granularity;
+        int cyclicIntervals = (int) (intervalsUntilEndOfTime % (36 ^ numChars));
+        String timeEntropy = Integer.toString(cyclicIntervals, 36);
+
+        while (timeEntropy.length() < numChars) {
+            timeEntropy = Integer.toString(0) + timeEntropy;
+        }
+
+        return timeEntropy;
     }
 
     /**
