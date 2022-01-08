@@ -74,46 +74,57 @@ value out of writing your tests with Operations.
 In this capacity, Operations are the essential building blocks for creating a scenario.
 
 As building blocks, they should be easy to configure for the default cases, with as
-few dependencies as possible.  For example, maybe you are creating a bank application and
-want to create a new account.  The CreateAccountOp should take a single parameter to configures
-itself, which would be the person who is the account holder.
+little required configuration as possible.  For example, maybe you are creating a bank application and
+want to create a new account.  The CreateAccountOp should take a single parameter to configure
+itself, which might be information about the account holder.
 
 To control the other parts of configuration, it is helpful to write fluent configuration functions.
-These might allow you to specify an account type or fee schedule, things which can be defaulted.
+These might allow you to specify an account type or fee schedule; things which can be defaulted and only need to be changed for specific testing scenarios.
 
 The important thing is to remember that the users of your CreateAccountOp will likely not be too
 concerned about the details of the account, so they should be hidden.  That way they can focus on
 their specific problems of legal compliance or tax rules, or whatever.
 
-### Role #2: Validating conditions
+### Role #2: Encapsulating created objects
 
-As test, the goal is all about validating conditions, and operations make a great place to
-attach methods used for validations, since they already have a fair amount of state available
+The operation owns the objects that it creates or the behavior that it encapsulates.  If you need access to that information, it is easiest to get it from the operation itself.
+
+In the previous bank example, rather than passing the name of the account holder to the CreateAccountOp, you probably needed to create the account holder, so pass the CreateEntityOp in the constructor.
+
+Two benefits come from this practice.  First, it is convenient, and gives you flexibility to return different aspects of the resource.  Maybe some places need a name, others need an ID -- both accessors can be available on the operation.
+
+Second, it allows for chained execution.  If you need to create multiple entities and multiple accounts, you can build a sequence that creates the entity and the account, then build 5 copies of that sequence in an OperationList.  Calling execute on the list will create the 5 accounts in parallel!
+
+
+### Role #3: Validating conditions
+
+The goal of tests is to create scenarios and validate conditions. Operations make a great place to
+attach methods used for validations, since they already have all of the state available
 to them.
 
 #### Basic validations
 
-Validations that are computationally cheap, such as null pointer checks, equality checks and the like,
+Validations that are computationally cheap, such as null pointer checks, equality checks, range checks and the like,
 should always be included directly in the execute() and revert() implementations.  This provides
 the highest level of confidence that implementations are correct every time the test is run.
 
-#### Complex Validations
+#### Complex Validation methods
 
-For complex validations, there are two options.  The first is to add methods to the operation which
+For complex, time-consuming validations, there are two options.  The first is to add methods to the operation which
 can be called directly from tests where they are relevant.  Confirming that external systems
 are in sync with local systems, or iterating over large lists and validating items are examples where
 this option makes sense.
 
 #### Validator Classes
 
-The other option for complex validations is to add validator instances to operations.  This powerful
-mechanism allows you to configure the validators, and add or remove specific validators based on the
+The most flexible option for complex validations is to add validator instances to operations.  This powerful
+mechanism allows you to configure the validators, and add or remove specific validators based on the specific
 testing situation.
 
 Validators are also called during cleanup, so they can be a good option to ensure that resources on
 external systems are cleaned up when running generic operations.
 
-Generally, validators will be added by test writers, but they can also be added to operations by default,
+Generally, validators will be added by test writers (not operation implementors), but they can also be added to operations by default,
 and test writers still have full control to remove them in order to test specific scenarios or speed
 up long-running scenarios.
 
@@ -316,7 +327,7 @@ public void fooTest() throws Exception {
       Operation firstOp = new SomeOperation();
       ops.addExecute(firstOp);
 
-      Operation secondOp = new SomeOperation();
+      Operation secondOp = new AnotherOperation();
       ops.addExecute(secondOp);
   }
 }
