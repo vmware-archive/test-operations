@@ -39,6 +39,12 @@ public class PropertyUtils {
     private static final Logger logger = LoggerFactory.getLogger(PropertyUtils.class);
 
     /**
+     * Private constructor for static utils class.
+     */
+    private PropertyUtils() {
+    }
+
+    /**
      * Get the name of the local user.  This is used to disambiguate and attribute test products
      * back to developers.
      *

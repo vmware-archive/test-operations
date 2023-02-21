@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2015-2018 VMware, Inc. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0

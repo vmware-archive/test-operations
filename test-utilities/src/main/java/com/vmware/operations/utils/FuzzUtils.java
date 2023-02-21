@@ -34,6 +34,12 @@ import java.util.TimeZone;
 public class FuzzUtils {
 
     /**
+     * Private constructor for static utils class.
+     */
+    private FuzzUtils() {
+    }
+
+    /**
      * A character set used for the most constrictive requirements. Contains only numbers and
      * uppercase characters.  The set is repetitive, which means adapting strings to this set will work,
      * but adapting strings from this set will not get the full range of the result set
