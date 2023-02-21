@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * for execute and revert.
  * <p>
  * This allows for dynamic operations, or linking two operations together.
+ * @param <T> shared data passed to dynamic functions
  */
 public class GenericOp<T> extends OperationSyncBase {
     private static final Logger logger = LoggerFactory.getLogger(GenericOp.class);
