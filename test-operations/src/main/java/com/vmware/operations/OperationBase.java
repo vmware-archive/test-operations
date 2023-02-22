@@ -36,10 +36,18 @@ public abstract class OperationBase implements Operation {
     private boolean validationsExecuted;
     private boolean validationsReverted;
 
+    /**
+     * Constructor.
+     */
     protected OperationBase() {
         this.validatorList = new ArrayList<>();
     }
 
+    /**
+     * Override to handle cleanup exceptions. Default implementation
+     * just logs the error message.
+     * @param th The exception that occurred during cleanup.
+     */
     public void handleCleanupException(Throwable th) {
         logger.debug("Cleanup error {}", th.getMessage());
     }

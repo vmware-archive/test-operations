@@ -34,18 +34,38 @@ public final class Operations {
     private Operations() {
     }
 
+    /**
+     * Return the executor service to use when submitting asynchronous work.
+     * Note that most calls are asynchronous in the library, so this will be used
+     * heavily.
+     * @return configured executor service
+     */
     public static ExecutorService getExecutorService() {
         return executorService;
     }
 
+    /**
+     * Set the executor service to use when submitting asynchronous work.
+     * Note that most calls are asynchronous in the library, so this will be used
+     * heavily.
+     * @param executorService An executor used to submit work.
+     */
     public static void setExecutorService(ExecutorService executorService) {
         Operations.executorService = executorService;
     }
 
+    /**
+     * Factory method for a list of parallel operations.
+     * @return OperationList initialized with the default executor service.
+     */
     public static OperationList list() {
         return new OperationList(executorService);
     }
 
+    /**
+     * Factory method for a list of sequential operations.
+     * @return OperationSequence initialized with the default executor service.
+     */
     public static OperationSequence sequence() {
         return new OperationSequence(executorService);
     }

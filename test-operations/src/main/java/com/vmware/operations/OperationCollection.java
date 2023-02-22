@@ -35,16 +35,19 @@ public interface OperationCollection extends Operation {
     void add(Operation op);
 
     /**
-     * @return true if no operations have been added
+     * Return true if no child operations have been added.
+     * @return true if no child operations have been added.
      */
     boolean isEmpty();
 
     /**
-     * @return the number of operations added
+     * Return the number of chile operations in the collection.
+     * @return the number of chile operations in the collection.
      */
     int size();
 
     /**
+     * The list of child operations as a List.
      * @return an unmodifiable, ordered List of operations
      */
     List<Operation> getOperations();

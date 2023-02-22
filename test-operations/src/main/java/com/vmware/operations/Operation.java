@@ -109,7 +109,9 @@ public interface Operation extends AutoCloseable {
     CompletableFuture<Void> revertAsync();
 
     /**
-     * @return the status of the command.
+     * Get the status of the operation.
+     * @return true if the operation has executed, and therefore needs
+     *          to be reverted or cleaned up.
      */
     boolean isExecuted();
 

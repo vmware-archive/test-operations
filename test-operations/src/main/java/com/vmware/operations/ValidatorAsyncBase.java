@@ -29,6 +29,12 @@ import java.util.concurrent.ExecutorService;
  * @param <T> Operation type this validator can be attached to.
  */
 public abstract class ValidatorAsyncBase<T extends Operation> implements Validator {
+    /**
+     * Constructor.
+     */
+    public ValidatorAsyncBase() {
+    }
+
     @Override
     public CompletableFuture<Void> validateExecutionAsync(ExecutorService executorService, Operation initiatingOp) {
         try {
@@ -58,9 +64,23 @@ public abstract class ValidatorAsyncBase<T extends Operation> implements Validat
         }
     }
 
+    /**
+     * Perform validations after an execution operation.
+     * @param executorService executor to use when submitting async calls
+     * @param initiatingOp the operation that was reverted.
+     * @return A CompletableFuture that completes when the validation has completed
+     * @throws Exception if any of the validators throw
+     */
     public abstract CompletableFuture<Void> validateExecution(ExecutorService executorService,
                                                               T initiatingOp) throws Exception;
 
+    /**
+     * Perform validations after a revert (not cleanup) operation.
+     * @param executorService executor to use when submitting async calls
+     * @param initiatingOp the operation that was reverted.
+     * @return A CompletableFuture that completes when the validation has completed
+     * @throws Exception if any of the validators throw
+     */
     public abstract CompletableFuture<Void> validateRevert(ExecutorService executorService,
                                                            T initiatingOp) throws Exception;
 }

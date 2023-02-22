@@ -32,11 +32,19 @@ import java.util.concurrent.ExecutorService;
 public abstract class OperationSyncBase extends OperationBase {
     private final ExecutorService executorService;
 
+    /**
+     * Constructor.
+     */
     protected OperationSyncBase() {
         super();
         this.executorService = Operations.getExecutorService();
     }
 
+    /**
+     * Constructor.
+     * @param executorService the executor service to use when performing asynchronous
+     *                        calls for this operation.
+     */
     protected OperationSyncBase(ExecutorService executorService) {
         super();
         this.executorService = executorService;
