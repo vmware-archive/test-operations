@@ -68,6 +68,8 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
     }
 
     /**
+     * Get the number of required successful child operations for the list execution
+     * to be considered complete.
      * @return the required number of successful child operations in order for this operation
      * to succeed.  If the result is negative, or greater then the length of the list, then
      * any child exception will be propagated to the list operation, causing the list operation to fail.
