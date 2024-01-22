@@ -34,7 +34,7 @@ public class DelayOp extends OperationSyncBase {
     private static final Logger logger = LoggerFactory.getLogger(DelayOp.class);
 
     // Maximum delay is 100 minutes
-    private final long maximumDelayMs = 100 * 60 * 1000L;
+    private static final long maximumDelayMs = 100 * 60 * 1000L;
 
     private long executeDelayMs;
     private long revertDelayMs;
@@ -69,11 +69,23 @@ public class DelayOp extends OperationSyncBase {
      */
     public DelayOp executeDelay(Duration d) {
         long millis = d.toMillis();
-        if (millis < 0L || millis > maximumDelayMs) {
-            throw new IllegalArgumentException("delay must be between 0 and " + maximumDelayMs + " ms");
+        if (millis < 0L) {
+            logger.error("delay must be greater than 0 ms.");
+            millis = 0;
+        } else if (millis > maximumDelayMs) {
+            logger.error("delay must be less than " + maximumDelayMs + " ms.");
+            millis = maximumDelayMs;
         }
         this.executeDelayMs = millis;
         return this;
+    }
+
+    /**
+     * Get the delay during execution.
+     * @return Duration value for the execution delay
+     */
+    public Duration getExecuteDelay() {
+        return Duration.ofMillis(executeDelayMs);
     }
 
     /**
@@ -84,11 +96,23 @@ public class DelayOp extends OperationSyncBase {
      */
     public DelayOp revertDelay(Duration d) {
         long millis = d.toMillis();
-        if (millis < 0L || millis > maximumDelayMs) {
-            throw new IllegalArgumentException("delay must be between 0 and " + maximumDelayMs + " ms");
+        if (millis < 0L) {
+            logger.error("delay must be greater than 0 ms.");
+            millis = 0;
+        } else if (millis > maximumDelayMs) {
+            logger.error("delay must be less than " + maximumDelayMs + " ms.");
+            millis = maximumDelayMs;
         }
         this.revertDelayMs = millis;
         return this;
+    }
+
+    /**
+     * Get the delay during revert.
+     * @return Duration value for the revert delay
+     */
+    public Duration getRevertDelay() {
+        return Duration.ofMillis(revertDelayMs);
     }
 
     @Override

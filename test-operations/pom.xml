@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.vmware.test-operations</groupId>
     <artifactId>test-operations-parent</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>test-operations</artifactId>
   <!--
@@ -67,6 +67,11 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>4.7.3</version>
     </dependency>
   </dependencies>
 

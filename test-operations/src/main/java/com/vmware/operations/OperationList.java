@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,12 @@ public class OperationList extends OperationAsyncBase implements OperationCollec
         return operations.size();
     }
 
+    /*
+     * Suppress Spotbugs warning because we make the list immutable at
+     * finish() time.
+     */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<Operation> getOperations() {
         return operations;
     }
