@@ -37,13 +37,13 @@ public class OperationTest {
 
     @Test
     public void utilityClassIsWellFormed() throws Exception {
-        Constructor[] ctors = Operations.class.getDeclaredConstructors();
+        Constructor<?>[] ctors = Operations.class.getDeclaredConstructors();
         Assert.assertEquals("Utility class should only have one constructor",
                 1, ctors.length);
-        Constructor ctor = ctors[0];
+        Constructor<?> ctor = ctors[0];
         Assert.assertFalse("Utility class constructor should be inaccessible",
-                ctor.isAccessible());
-        ctor.setAccessible(true); // obviously we'd never do this in production
+                ctor.canAccess(null));
+        ctor.setAccessible(true); // obviously we'd never do this outside of tests
         Assert.assertEquals("You'd expect the construct to return the expected type",
                 Operations.class, ctor.newInstance().getClass());
     }
