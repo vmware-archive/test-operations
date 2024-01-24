@@ -18,8 +18,8 @@
 
 package com.vmware.operations.utils;
 
+import java.security.SecureRandom;
 import java.util.Calendar;
-import java.util.Random;
 import java.util.TimeZone;
 
 /**
@@ -63,6 +63,8 @@ public class FuzzUtils {
      */
     public static final String UTF16_CHARS = "\u24e1\u2460\u24f6\u2675\u2643\u2464\u277b\u2786\u2791\u0669\u00c5\u00df\u00c7\u00d0\u20ac\u1e1e\u20b2\u021e\u0399\u0134\ua7a2\u00a3\u039c\u00d1\u00d8\u2119\u213a\u13d2\u2c7e\u01ac\u22c3\u2207\u0428\u00d7\u00a5\u017d_-." +
             ")!@#$%^&*(\u00c5\u00df\u00c7\u00d0\u20ac\u1e1e\u20b2\u10ac\u0399\u0134\ua7a2|\u039c\u00d1\u00d8\u2119'\"\u2c7e\u01ac\u22c3\\ {}<>[]";
+
+    private static final SecureRandom RNG = new SecureRandom();
 
     /**
      * Using a prefix, build a random string string with a given length, filled
@@ -142,9 +144,8 @@ public class FuzzUtils {
         }
 
         // Add the minimum number of random digits
-        Random r = new Random();
         for (int i = 0; i < entropy; ++i) {
-            result.append(charset.charAt(r.nextInt(charset.length())));
+            result.append(charset.charAt(RNG.nextInt(charset.length())));
         }
 
         return result.toString();

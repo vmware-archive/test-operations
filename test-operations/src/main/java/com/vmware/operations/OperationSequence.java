@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,12 @@ public class OperationSequence extends OperationSyncBase implements OperationCol
         return data.size();
     }
 
+    /*
+     * Suppress Spotbugs warning because we make the list immutable at
+     * finish() time.
+     */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<Operation> getOperations() {
         return data;
     }

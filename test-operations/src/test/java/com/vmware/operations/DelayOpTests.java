@@ -99,26 +99,64 @@ public class DelayOpTests {
     /**
      * Test method for {@link Operation}.
      */
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void negativeConstructorDelay() throws Throwable {
+    @Test
+    public final void negativeConstructorDelay() {
         DelayOp op = new DelayOp(Duration.ofSeconds(-1));
+        Assert.assertEquals("Execution Delay was not constrained to bounds",
+                Duration.ZERO, op.getExecuteDelay());
     }
 
     /**
      * Test method for {@link Operation}.
      */
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void negativeExecutorDelay() throws Throwable {
+    @Test
+    public final void negativeExecutorDelay() {
         DelayOp op = new DelayOp()
                 .executeDelay(Duration.ofSeconds(-1));
+        Assert.assertEquals("Execution Delay was not constrained to bounds",
+                Duration.ZERO, op.getExecuteDelay());
     }
 
     /**
      * Test method for {@link OperationList}.
      */
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void negativeRevertDelay() throws Throwable {
+    @Test
+    public final void negativeRevertDelay() {
         DelayOp op = new DelayOp()
                 .revertDelay(Duration.ofSeconds(-1));
+        Assert.assertEquals("Revert Delay was not constrained to bounds",
+                Duration.ZERO, op.getRevertDelay());
+    }
+
+    /**
+     * Test method for {@link Operation}.
+     */
+    @Test
+    public final void extremeConstructorDelay() {
+        DelayOp op = new DelayOp(Duration.ofDays(1));
+        Assert.assertNotEquals("Execution Delay was not constrained to bounds",
+                Duration.ofDays(1), op.getExecuteDelay());
+    }
+
+    /**
+     * Test method for {@link Operation}.
+     */
+    @Test
+    public final void extremeExecutorDelay() {
+        DelayOp op = new DelayOp()
+                .executeDelay(Duration.ofDays(1));
+        Assert.assertNotEquals("Execution Delay was not constrained to bounds",
+                Duration.ofDays(1), op.getExecuteDelay());
+    }
+
+    /**
+     * Test method for {@link OperationList}.
+     */
+    @Test
+    public final void extremeRevertDelay() {
+        DelayOp op = new DelayOp()
+                .revertDelay(Duration.ofDays(1));
+        Assert.assertNotEquals("Revert Delay was not constrained to bounds",
+                Duration.ofDays(1), op.getRevertDelay());
     }
 }
