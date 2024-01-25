@@ -58,8 +58,8 @@ Ensure that `git status` is clean, no extra files or diffs.
 This will create a pull request with the non-SNAPSHOT build.  Replace with the correct version number.
 
 ```
-git switch -c release-1.2.0
-mvn versions:set -DnewVersion=1.2.0
+git switch -c release-1.2.1
+mvn versions:set -DnewVersion=1.2.1
 git add -u
 git commit
 git push
@@ -83,7 +83,8 @@ Your deployed items should be found there.
 
 You will want to find the staging repository with the javadoc, jar, and pom content.  You should "Drop" the unneeded repositories.
 
-Also, if the repository has a folder for "test-operations-parent", you can delete that from the repository.
+The full repository will have folders for test-operations, test-utilities, and test-operations-parent.
+
 
 "Close" the repository you want to promote.  This locks it, preventing further changes.  It also runs a series of sanity checks.
 
@@ -110,8 +111,8 @@ You can create a new tag at the time of making the release.
 This puts the repository in a mode ready for more development and pull requests.
 
 ```
-git switch -c release-1.2.1-SNAPSHOT
-mvn versions:set -DnewVersion=1.2.1-SNAPSHOT
+git switch -c release-1.2.2-SNAPSHOT
+mvn versions:set -DnewVersion=1.2.2-SNAPSHOT
 git add -u
 git commit
 git push

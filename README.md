@@ -21,7 +21,7 @@ It's easy to get started adding operations to your Java project.  Just add to yo
 <dependency>
   <groupId>com.vmware.test-operations</groupId>
   <artifactId>test-operations</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.1</version>
   <scope>test</scope>
 </dependency>
 ```
